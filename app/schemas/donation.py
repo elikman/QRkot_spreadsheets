@@ -1,24 +1,34 @@
+from datetime import datetime
 from typing import Optional
 
-from .base_schemas import BaseSchema, BaseDBSchema
+from pydantic import BaseModel, Field, PositiveInt
 
 
-class DonationCreateSchema(BaseSchema):
-    comment: Optional[str] = None
+class DonationBase(BaseModel):
+    """Базовая модель для пожертвования."""
+
+    full_amount: PositiveInt
+    comment: Optional[str]
 
 
-class DonationDBSchema(DonationCreateSchema, BaseDBSchema):
-    user_id: int
+class DonationCreate(DonationBase):
+    """Модель для создания пожертвования."""
 
+    id: int
+    create_date: datetime
 
-class UserDonationDBSchema(DonationCreateSchema, BaseDBSchema):
     class Config:
+        """Конфигурация для DonationCreate."""
+
         orm_mode = True
-        schema_extra = {
-            'example': {
-                'id': 1,
-                'full_amount': 500,
-                'comment': 'My donation',
-                'create_date': '2024-09-25T13:27:29.873589'
-            }
-        }
+
+
+class DonationDB(DonationCreate):
+    """Модель для пожертвования, возвращаемая из базы данных."""
+
+    id: int
+    create_date: datetime
+    user_id: int
+    invested_amount: int = Field(0)
+    fully_invested: bool
+    close_date: Optional[datetime]

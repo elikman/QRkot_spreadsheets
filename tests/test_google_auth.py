@@ -1,11 +1,11 @@
 import types
 try:
     from app.core import google_client
-except (NameError, ImportError):
+except (NameError, ImportError) as error:
     raise AssertionError(
         'Не обнаружен файл `google_client`. '
         'Проверьте и поправьте: он должн быть доступен в модуле `app.core`.',
-    )
+    ) from error
 
 
 def test_scopes():

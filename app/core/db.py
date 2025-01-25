@@ -1,12 +1,12 @@
 from sqlalchemy import Column, Integer
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declared_attr, sessionmaker, as_declarative
+from sqlalchemy.orm import declarative_base, declared_attr, sessionmaker
 
 from app.core.config import settings
 
 
-@as_declarative()
-class Base:
+class PreBase:
+    """Базовый класс для моделей."""
 
     @declared_attr
     def __tablename__(cls):
@@ -15,11 +15,14 @@ class Base:
     id = Column(Integer, primary_key=True)
 
 
+Base = declarative_base(cls=PreBase)
+
 engine = create_async_engine(settings.database_url)
 
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession)
 
 
 async def get_async_session():
+    """Получение асинхронной сессии базы данных."""
     async with AsyncSessionLocal() as async_session:
         yield async_session

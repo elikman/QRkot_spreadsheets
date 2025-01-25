@@ -3,11 +3,11 @@ from aiogoogle.auth.creds import ServiceAccountCreds
 
 from app.core.config import settings
 
-
 SCOPES = [
     'https://www.googleapis.com/auth/spreadsheets',
-    'https://www.googleapis.com/auth/drive'
+    'https://www.googleapis.com/auth/drive',
 ]
+
 INFO = {
     'type': settings.type,
     'project_id': settings.project_id,
@@ -18,11 +18,13 @@ INFO = {
     'auth_uri': settings.auth_uri,
     'token_uri': settings.token_uri,
     'auth_provider_x509_cert_url': settings.auth_provider_x509_cert_url,
-    'client_x509_cert_url': settings.client_x509_cert_url
+    'client_x509_cert_url': settings.client_x509_cert_url,
 }
+
 cred = ServiceAccountCreds(scopes=SCOPES, **INFO)
 
 
 async def get_service():
+    """Возвращает экземпляр Aiogoogle для работы с Google API."""
     async with Aiogoogle(service_account_creds=cred) as aiogoogle:
         yield aiogoogle

@@ -8,7 +8,7 @@ except (NameError, ImportError) as error:
         'При импорте настроек приложения `Settings` из модуля '
         '`app.core.config` возникло исключение:\n'
         f'{type(error).__name__}: {error}.'
-    )
+    ) from error
 
 
 def test_check_migration_file_exist():

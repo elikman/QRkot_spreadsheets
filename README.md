@@ -1,122 +1,128 @@
-# QRkot_spreadseets
+# QRkot
 
-Приложение для Благотворительного фонда поддержки животных QRKot. Фонд собирает пожертвования на различные целевые проекты: медицинское обслуживание нуждающихся хвостатых и не только — на любые цели, связанные с поддержкой наших меньших.
+![Python](https://img.shields.io/badge/python-3670A0?logo=python&logoColor=ffdd54)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?logo=fastapi)
+![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?logo=sqlite&logoColor=white)
+---
 
-В Фонде QRKot может быть открыто несколько целевых проектов. После того, как нужная сумма собрана — проект закрывается. Все пожертвования идут в проект, открытый раньше других; когда этот проект набирает необходимую сумму и закрывается — пожертвования начинают поступать в следующий проект.
+Это учебный проект на базе фреймворка **FastAPI**. 
 
-Каждый пользователь может сделать пожертвование и сопроводить его комментарием. Пожертвования вносятся в фонд, а не в конкретный проект. Если пожертвование больше нужной для проекта суммы или в Фонде нет открытых проектов — оставшиеся деньги ждут открытия следующего проекта. При создании нового проекта все неинвестированные пожертвования автоматически вкладываются в новый проект.
+QRKot — приложение для Благотворительного фонда поддержки котиков.
+Фонд собирает пожертвования на различные целевые проекты: на медицинское 
+обслуживание нуждающихся хвостатых, на обустройство кошачьей колонии в 
+подвале, на корм оставшимся без попечения кошкам — на любые цели, связанные 
+с поддержкой кошачьей популяции :)
 
-Целевые проекты создаются администраторами сайта. Любой пользователь может видеть список всех проектов, включая требуемые и уже внесенные суммы. Зарегистрированные пользователи могут отправлять пожертвования и просматривать список своих пожертвований.
+### Проекты
+Администратор может создать несколько целевых проектов, с указанием 
+необходимой суммы. После сбора необходимой суммы, проект закрывается. Все 
+проекты доступны для просмотра без авторизации.
+### Пожертвования
+Зарегистрированные пользователи могут вносить пожертвования. Все пожертвования 
+идут на обеспечение проектов в порядке очереди. Пользователь может видеть 
+только свои пожертвования.
+### Отчёт
+Приложение умеет формировать отчёт в гугл-таблице, в котором перечислены 
+закрытые проекты, отсортированные по скорости сбора средств.
 
-Приложение имеет возможность формировать отчёт в Google-таблице. В таблицу включены закрытые проекты, отсортированные по скорости сбора средств — от тех, что закрылись быстрее всего, до тех, что долго собирали нужную сумму.
-
-## Стек технологий
-
-- Python
-- FastAPI
-- FastAPI-Users
-- Pydantic
+## Стек технологий:
+- Python 3.9
+- FastAPI v.0.78.0
+- SQLite
 - SQLAlchemy
-- aiosqlite
 - Alembic
 - Google API
 
-## Функционал
 
-### Проекты
-- Возможность создания нескольких целевых проектов.
-- Каждый проект имеет название, описание и сумму, которую необходимо собрать.
-- Проекты закрываются после достижения необходимой суммы.
+## Подготовка к работе:
 
-### Пожертвования
-- Пользователи могут делать пожертвования с комментариями.
-- Пожертвования распределяются по принципу First In, First Out (FIFO).
-- Если пожертвование превышает необходимую сумму, оставшиеся средства ждут открытия следующего проекта.
+<details>
+    <summary><b>Клонируйте репозиторий</b></summary>
 
-### Пользователи
-- Администраторы могут создавать и управлять проектами.
-- Все пользователи могут просматривать список всех проектов и своих пожертвований.
+```shell
+git clone https://github.com/elikman/QRkot_spreadsheets.git
 
-## Предварительная настройка
+cd qrkot_spreadsheets
+```
+</details>
 
-1. Клонируйте репозиторий с тестами для Вашего финального проекта:
-   ```bash
-   git clone https://github.com/elikman/QRkot_spreadsheets.git
-   cd cat_charity_fund
-2. Создайте и активируйте виртуальное окружение:
+<details>
+    <summary><b>Создайте файл <code>.env</code> в корне проекта 
+со своими данными</b></summary>
 
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # Для Linux/Mac
-    venv\Scripts\activate  # Для Windows
-    
-3. Установите необходимые пакеты:
+```dotenv
+APP_TITLE=Кошачий благотворительный фонд (0.1.0)
+DESCRIPTION=Сервис для поддержки котиков!
+DATABASE_URL=sqlite+aiosqlite:///./fastapi.db
+SECRET=QU:=r6S7+{'et=rf
+FIRST_SUPERUSER_EMAIL=superuser@example.com
+FIRST_SUPERUSER_PASSWORD=5>~H*d&:Yz5jXrna
+# Доступ к сервисному аккаунту Google Cloud Platform
+EMAIL=
+TYPE=
+PROJECT_ID=
+PRIVATE_KEY_ID=
+PRIVATE_KEY=
+CLIENT_EMAIL=
+CLIENT_ID=
+AUTH_URI=
+TOKEN_URI=
+AUTH_PROVIDER_X509_CERT_URL=
+CLIENT_X509_CERT_URL=
+```
+> Данные для доступа к сервисному аккаунту Google Cloud Platform возьмите из
+> `*.json` файла, полученного после создания аккаунта.
+</details>
 
-    ```bash
-    pip install -r requirements.txt
-   
-4. Создайте приложение на FastAPI в директории app/.
-5. Создать в корне файл .env и заполнить его по образцу:
+<details>
+    <summary><b>Создайте и активируйте виртуальное окружение</b></summary>
 
-    ```bash
-    APP_TITLE=Кошачий благотворительный фонд (0.1.0)
-    DATABASE_URL=sqlite+aiosqlite:///./fastapi.db
-    SECRET=secret
-    FIRST_SUPERUSER_EMAIL=example@example.ru
-    FIRST_SUPERUSER_PASSWORD=password
-    TYPE=example
-    PROJECT_ID=example
-    PRIVATE_KEY_ID=example
-    PRIVATE_KEY=example
-    CLIENT_EMAIL=example
-    CLIENT_ID=example
-    AUTH_URI=example
-    TOKEN_URI=example
-    AUTH_PROVIDER_X509_CERT_URL=example
-    CLIENT_X509_CERT_URL=example
-    UNIVERSE_DOMAIN=example
-    EMAIL='example@gmail.com'
+```shell
+# Linux/MacOS
+python3 -m venv venv
+source venv/bin/activate
+python3 -m pip install --upgrade pip
 
-## Технические подробности:
+# Windows
+python -m venv venv
+source venv/scripts/activate
+python -m pip install --upgrade pip
+```
+> В проекте используется **Python** версии **3.9**
+</details>
 
-### Модели
+<details>
+    <summary>
+        <b>Установите зависимости из файла <code>requirements.txt</code></b>
+    </summary>
 
-Пользователи: Используйте библиотеку FastAPI Users для управления пользователями.
-Проекты: Модель CharityProject с полями:
+```shell
+pip install -r requirements.txt
+```
+</details>
 
-    - id
-    - name
-    - description
-    - full_amount
-    - invested_amount
-    - fully_invested
-    - create_date
-    - close_date
-Пожертвования: Модель Donation с полями:
+<details>
+    <summary><b>Примените миграции</b></summary>
 
-    - id
-    - user_id
-    - comment
-    - full_amount
-    - invested_amount
-    - fully_invested
-    - create_date
-    - close_date
+```shell
+alembic upgrade head
+```
+</details>
 
-## API
-Спецификация API доступна в файле openapi.json. Для просмотра документации загрузите файл на сайт ReDoc.
+<details>
+    <summary><b>Запустите программу</b></summary>
 
-## Настройки базы данных
+```shell
+uvicorn app.main:app --reload
+```
+> По-умолчанию приложение запускается на 8000 порту, но вы можете изменить 
+> порт: `--port 8001`
+</details>
 
-Подключение к базе данных по умолчанию: sqlite+aiosqlite:///./fastapi.db.
 
-## Запуск приложения
+## Документация
+После запуска программы документация будет доступна по адресам:
 
-### Для запуска приложения используйте команды:
+[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-    uvicorn app.main:app --reload
-    alembic init --template async alembic
-    alembic revision --autogenerate -m "migration name"
-    alembic upgrade head
-    alembic downgrade
-    pytest
+[http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)

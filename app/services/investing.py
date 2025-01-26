@@ -1,55 +1,47 @@
 from datetime import datetime
+from typing import Type
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import CharityProject, Donation
+from app.models.base import BaseModel
 
 
-async def update_donation(donation: Donation, amount: int):
-    donation.invested_amount += amount
-    if donation.invested_amount >= donation.full_amount:
-        donation.fully_invested = True
-        donation.close_date = datetime.utcnow()
-
-
-async def investing_process(
-        charity_project: CharityProject,
-        donation_model: Donation,
+async def investation(
+        obj_in: BaseModel,
+        opposing_model: Type[BaseModel],
         session: AsyncSession,
-) -> CharityProject:
-    result = await session.execute(
-        select(donation_model).
-        where(donation_model.fully_invested.is_(False)).
-        order_by(donation_model.create_date)
-    )
-    available_donations = result.scalars().all()
-
-    for donation in available_donations:
-        free_amount_in_project = (charity_project.full_amount -
-                                  charity_project.invested_amount)
-        free_amount_in_donation = (donation.full_amount -
-                                   donation.invested_amount)
-
-        if free_amount_in_project > free_amount_in_donation:
-            charity_project.invested_amount += free_amount_in_donation
-            await update_donation(donation, donation.full_amount)
-
-        elif free_amount_in_project == free_amount_in_donation:
-            charity_project.invested_amount += free_amount_in_project
-            charity_project.fully_invested = True
-            charity_project.close_date = datetime.utcnow()
-            await update_donation(donation, donation.full_amount)
-
-        else:
-            charity_project.invested_amount = charity_project.full_amount
-            charity_project.fully_invested = True
-            charity_project.close_date = datetime.utcnow()
-            await update_donation(donation, free_amount_in_project)
-
-        session.add(charity_project)
-        session.add(donation)
-
+) -> BaseModel:
+    open_objs = await session.execute(select(opposing_model).where(
+        opposing_model.fully_invested == False # noqa
+    ).order_by(opposing_model.create_date))
+    open_objs = open_objs.scalars().all()
+    for obj in open_objs:
+        obj_in, obj = await calculation(obj_in, obj)
+        session.add(obj_in)
+        session.add(obj)
     await session.commit()
-    await session.refresh(charity_project)
-    return charity_project
+    await session.refresh(obj_in)
+    return obj_in
+
+
+async def close_obj(obj: BaseModel) -> BaseModel:
+    obj.invested_amount = obj.full_amount
+    obj.fully_invested = True
+    obj.close_date = datetime.now()
+    return obj
+
+
+async def calculation(obj_in, obj):
+    have = obj_in.full_amount - obj_in.invested_amount
+    need = obj.full_amount - obj.invested_amount
+    if have == need:
+        obj_in = await close_obj(obj_in)
+        obj = await close_obj(obj)
+    elif have > need:
+        obj_in.invested_amount += need
+        obj = await close_obj(obj)
+    else:
+        obj.invested_amount += have
+        obj_in = await close_obj(obj_in)
+    return obj_in, obj

@@ -1,5 +1,5 @@
-from typing import Optional, Union
 import logging
+from typing import Optional, Union
 
 from fastapi import Depends, Request
 from fastapi_users import (BaseUserManager, FastAPIUsers, IntegerIDMixin,
@@ -14,10 +14,8 @@ from app.core.db import get_async_session
 from app.models.user import User
 from app.schemas.user import UserCreate
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 MIN_PASSWORD_LENGTH = 3
+LIFETIME_SECONDS = 3600
 
 
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):
@@ -28,7 +26,8 @@ bearer_transport = BearerTransport(tokenUrl='auth/jwt/login')
 
 
 def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=settings.secret, lifetime_seconds=3600)
+    return JWTStrategy(secret=settings.secret,
+                       lifetime_seconds=LIFETIME_SECONDS)
 
 
 auth_backend = AuthenticationBackend(
@@ -41,9 +40,9 @@ auth_backend = AuthenticationBackend(
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
 
     async def validate_password(
-            self,
-            password: str,
-            user: Union[UserCreate, User],
+        self,
+        password: str,
+        user: Union[UserCreate, User],
     ) -> None:
         if len(password) < MIN_PASSWORD_LENGTH:
             raise InvalidPasswordException(
@@ -57,7 +56,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     async def on_after_register(
             self, user: User, request: Optional[Request] = None
     ):
-        logger.info(f'Пользователь {user.email} зарегистрирован.')
+        logging.info(f'Пользователь {user.email} зарегистрирован.')
 
 
 async def get_user_manager(user_db=Depends(get_user_db)):
@@ -66,7 +65,8 @@ async def get_user_manager(user_db=Depends(get_user_db)):
 
 fastapi_users = FastAPIUsers[User, int](
     get_user_manager,
-    [auth_backend],
+    [auth_backend, ],
 )
+
 current_user = fastapi_users.current_user(active=True)
 current_superuser = fastapi_users.current_user(active=True, superuser=True)

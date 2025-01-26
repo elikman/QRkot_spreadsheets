@@ -1,60 +1,67 @@
-from typing import Optional
+from typing import List, Optional
 
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
 from app.models.charity_project import CharityProject
+from app.schemas.charity_project import CharityProjectUpdate
 
 
 class CRUDCharityProject(CRUDBase):
 
-    async def get_project_id_by_name(
-            self,
-            project_name: str,
+    @staticmethod
+    async def update(
+            db_obj: CharityProject,
+            obj_in: CharityProjectUpdate,
+            session: AsyncSession,
+    ) -> CharityProject:
+        obj_data = jsonable_encoder(db_obj)
+        update_data = obj_in.dict(exclude_unset=True)
+
+        for field in obj_data:
+            if field in update_data:
+                setattr(db_obj, field, update_data[field])
+        session.add(db_obj)
+        await session.commit()
+        await session.refresh(db_obj)
+        return db_obj
+
+    @staticmethod
+    async def remove(
+            db_obj: CharityProject,
+            session: AsyncSession,
+    ) -> CharityProject:
+        await session.delete(db_obj)
+        await session.commit()
+        return db_obj
+
+    @staticmethod
+    async def get_charity_project_id_by_name(
+            charity_project_name: str,
             session: AsyncSession,
     ) -> Optional[int]:
-        db_project_id = await session.execute(
+        db_charity_project_id = await session.execute(
             select(CharityProject.id).where(
-                CharityProject.name == project_name
+                CharityProject.name == charity_project_name
             )
         )
-        db_project_id = db_project_id.scalars().first()
-        return db_project_id
+        return db_charity_project_id.scalars().first()
 
-    async def get_open_projects(self, session: AsyncSession):
-        result = await session.execute(
-            select(self.model).where(
-                self.model.fully_invested.is_(False)
-            )
-        )
-        return result.scalars().all()
-
+    @staticmethod
     async def get_projects_by_completion_rate(
-            self,
-            session: AsyncSession
-    ) -> list[dict]:
-        closed_projects = await session.execute(
-            select(
-                CharityProject.name,
-                CharityProject.description,
-                func.julianday(CharityProject.close_date) -
-                func.julianday(CharityProject.create_date).label('delta')
-            ).where(
+            session: AsyncSession,
+    ) -> List[CharityProject]:
+        charity_projects = await session.execute(
+            select(CharityProject).where(
                 CharityProject.fully_invested
+            ).order_by(
+                func.julianday(CharityProject.close_date) -
+                func.julianday(CharityProject.create_date)
             )
         )
-
-        closed_projects_list = []
-
-        for project in closed_projects:
-            closed_projects_list.append({
-                'name': project.name,
-                'description': project.description,
-                'delta': project.delta
-            })
-
-        return sorted(closed_projects_list, key=lambda x: x['delta'])
+        return charity_projects.scalars().all()
 
 
 charity_project_crud = CRUDCharityProject(CharityProject)

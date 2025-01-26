@@ -5,9 +5,7 @@ from sqlalchemy import Boolean, Column, DateTime, Integer
 from app.core.db import Base
 
 
-class BaseModel(Base):
-    """Базовая модель для хранения данных об инвестициях."""
-
+class ProjectDonationBase(Base):
     __abstract__ = True
 
     full_amount = Column(Integer, nullable=False)

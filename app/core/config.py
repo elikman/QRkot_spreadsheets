@@ -1,18 +1,18 @@
 from typing import Optional
 
+from dotenv import load_dotenv
 from pydantic import BaseSettings, EmailStr
+
+load_dotenv()
 
 
 class Settings(BaseSettings):
-    """Настройки приложения."""
-
     app_title: str = 'Кошачий благотворительный фонд'
-    app_description: str = 'Сервис для поддержки котиков!'
-    database_url: str = 'sqlite+aiosqlite:///./qrkot.db'
+    description: str = 'Сервис для поддержки котиков!'
+    database_url: str = 'sqlite+aiosqlite:///./qr_kot.db'
     secret: str = 'SECRET'
     first_superuser_email: Optional[EmailStr] = None
     first_superuser_password: Optional[str] = None
-    # Переменные для Google API
     type: Optional[str] = None
     project_id: Optional[str] = None
     private_key_id: Optional[str] = None
@@ -24,10 +24,9 @@ class Settings(BaseSettings):
     auth_provider_x509_cert_url: Optional[str] = None
     client_x509_cert_url: Optional[str] = None
     email: Optional[str] = None
+    universe_domain: Optional[str] = None
 
     class Config:
-        """Конфигурация загрузки из .env."""
-
         env_file = '.env'
 
 

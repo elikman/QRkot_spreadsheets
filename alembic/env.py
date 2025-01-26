@@ -2,14 +2,14 @@ import asyncio
 import os
 from logging.config import fileConfig
 
-from alembic import context
-
 from dotenv import load_dotenv
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from app.core.base import Base
+from alembic import context
 
+from app.core.base import Base
 
 load_dotenv('.env')
 
@@ -48,11 +48,7 @@ def run_migrations_offline():
 
 
 def do_run_migrations(connection):
-    context.configure(
-        connection=connection,
-        target_metadata=target_metadata,
-        render_as_batch=True,
-    )
+    context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():
         context.run_migrations()

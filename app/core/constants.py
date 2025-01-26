@@ -1,18 +1,30 @@
-FORMAT = '%Y/%m/%d %H:%M:%S'
+"""
+Константы.
+"""
+MAX_PROJECT_NAME_LENGTH = 100
+DEFAULT_INVESTED_AMOUNT = 0
+DEFAULT_FULLY_INVESTED = False
+MIN_ANYSTR_LENGTH = 1
 
-# Spreadsheet body
-SPREADSHEET_TITLE = 'Отчет от {}'
-LOCALE = 'ru_RU'
+TOKEN_VALIdITY_PERIOD = 3600
+MIN_LEN_PASSWORD = 3
 
-# Sheet properties
-SHEET_TITLE = 'Закрытые проекты'
-ROW_COUNT = 30
-COLUMN_COUNT = 3
+DATE_TIME_FORMAT = "%Y/%m/%d %H:%M:%S"
+# Дата для заголовка таблицы в Google API
+COLUMNS = 5  # Колонки таблицы в Google API
+ROWS = 100  # Ряды таблицы в Google API
 RANGE = 'A1:C30'
 
-# Sheet headers
-A1 = 'Отчет от'
-A2 = 'Топ проектов по скорости закрытия'
-A3 = 'Название проекта'
-B3 = 'Время сбора'
-C3 = 'Описание'
+
+class ErrorText():
+    """Текст ошибок."""
+
+    PASSWORD_TOO_SHORT = 'Пароль должен состоять минимум из 3 символов.'
+    EMAIL_IN_PASSWORD = 'Пароль не должен содержать адрес электронной почты.'
+    NAME_DUPLICATE = 'Проект с таким именем уже существует!'
+    PROJECT_NOT_FOUND = 'Проект не найден!'
+    PROJECT_CLOSED = 'Проект закрыт, нельзя редактировать!.'
+    PROJECT_WITH_FUNDS = 'Нельзя удалить проект с вложенными средстваим.'
+    FULL_AMOUNT_ERROR = (
+        'Новая полная сумма пожертвований не может быть меньше старой суммы.'
+    )

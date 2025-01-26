@@ -80,3 +80,5 @@ uvicorn[standard]
 watchgod
 websockets
 yarl; python_version >= '3.6'
+google-api-python-client
+pydantic-settings

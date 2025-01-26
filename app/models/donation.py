@@ -1,11 +1,13 @@
-from sqlalchemy import Column, ForeignKey, Integer, Text
+"""
+Модуль модели 'Donation'.
+"""
+from sqlalchemy import Column, Integer, Text, ForeignKey
 
-from app.models.base import BaseModel
+from .abstract_model import AbstractProjectDonation
 
 
-class Donation(BaseModel):
-    user_id = Column(Integer, ForeignKey(
-        'user.id',
-        name='fk_donation_user_id_user'
-    ))
+class Donation(AbstractProjectDonation):
+    """Модель 'Donation'."""
+
+    user_id = Column(Integer, ForeignKey('user.id'))
     comment = Column(Text)

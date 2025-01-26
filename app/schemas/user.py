@@ -1,13 +1,19 @@
-from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
+"""
+Модуль схем 'User'.
+"""
+from fastapi_users import schemas
 
 
-class UserRead(BaseUser[int]):
+class UserRead(schemas.BaseUser[int]):
+    """Схема чтения 'User'."""
     pass
 
 
-class UserCreate(BaseUserCreate):
+class UserCreate(schemas.BaseUserCreate):
+    """Схема создания 'User'."""
     pass
 
 
-class UserUpdate(BaseUserUpdate):
+class UserUpdate(schemas.BaseUserUpdate):
+    """Схема обновления 'User'."""
     pass

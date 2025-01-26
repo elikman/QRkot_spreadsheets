@@ -1,5 +1,6 @@
-from typing import List
-
+"""
+Модуль CRUD операций модели 'Donation'.
+"""
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,17 +8,25 @@ from app.crud.base import CRUDBase
 from app.models import Donation, User
 
 
-class CRUDReservation(CRUDBase):
+class CRUDDonation(CRUDBase):
+    """Класс CRUD операций модели 'Donation'."""
 
-    @staticmethod
     async def get_by_user(
-            session: AsyncSession,
-            user: User,
-    ) -> List[Donation]:
+        self,
+        user: User,
+        session: AsyncSession,
+    ) -> list[Donation]:
+        """
+        Получение списка объектов Donation,
+        сделанных пользователем.
+        """
         donations = await session.execute(
-            select(Donation).where(Donation.user_id == user.id)
+            select(Donation).where(
+                Donation.user_id == user.id
+            )
         )
+
         return donations.scalars().all()
 
 
-donation_crud = CRUDReservation(Donation)
+donation_crud = CRUDDonation(Donation)

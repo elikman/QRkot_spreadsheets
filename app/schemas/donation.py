@@ -1,25 +1,39 @@
+"""
+Модуль схем 'Donation'.
+"""
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
-from pydantic.types import PositiveInt
+from pydantic import BaseModel, Extra, PositiveInt
 
 
 class DonationCreate(BaseModel):
-    comment: Optional[str]
+    """Схема создания 'Donation'."""
+
     full_amount: PositiveInt
-
-
-class DonationDB(DonationCreate):
-    id: int
-    create_date: Optional[datetime]
+    comment: Optional[str]
 
     class Config:
+        extra = Extra.forbid
         orm_mode = True
 
 
-class DonationDBSuperUser(DonationDB):
-    user_id: Optional[int]
-    invested_amount: Optional[int]
-    fully_invested: Optional[bool]
+class DonationDBShort(DonationCreate):
+    """
+    Короткая схема ответа из базы данных.
+    Для зарегистрированного пользователя.
+    """
+
+    id: int
+    create_date: datetime
+
+
+class DonationDBFull(DonationDBShort):
+    """Схема ответа из базы данных для суперпользователя."""
+
+    id: int
+    user_id: int
+    invested_amount: int
+    fully_invested: bool
+    create_date: datetime
     close_date: Optional[datetime]

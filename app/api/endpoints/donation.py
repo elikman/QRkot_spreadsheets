@@ -1,52 +1,61 @@
+"""
+Модуль эндпоинтов модели 'Donation' приложения 'QRKot'.
+"""
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
-from app.core.user import current_superuser, current_user
-from app.crud.donation import donation_crud
-from app.models import CharityProject, User
-from app.schemas.donation import (DonationCreate, DonationDB,
-                                  DonationDBSuperUser)
-from app.services.investing import investation
+from app.core.user import current_user, current_superuser
+from app.crud import donation_crud
+from app.models import User
+from app.services import investmentService
+from app.schemas.donation import (
+    DonationDBFull,
+    DonationDBShort,
+    DonationCreate,
+)
 
 router = APIRouter()
 
 
-@router.post(
-    '/',
-    response_model=DonationDB,
-    response_model_exclude_none=True,
-    dependencies=[Depends(current_user)],
-)
-async def create_donation(
-        donation: DonationCreate,
-        session: AsyncSession = Depends(get_async_session),
-        user: User = Depends(current_user),
-):
-    return await investation(await donation_crud.create(
-        donation, session, user), CharityProject, session)
-
-
 @router.get(
-    '/',
-    response_model=list[DonationDBSuperUser],
-    response_model_exclude_none=True,
+    "/",
+    response_model=list[DonationDBFull],
     dependencies=[Depends(current_superuser)],
 )
 async def get_all_donations(
-        session: AsyncSession = Depends(get_async_session)
-):
+    session: AsyncSession = Depends(get_async_session),
+) -> list[DonationDBFull]:
+    """
+    GET-запрос на получение списка всех пожертвований.
+    Только для суперюзеров.
+    """
     return await donation_crud.get_multi(session)
 
 
 @router.get(
     '/my',
-    response_model=list[DonationDB],
-    response_model_exclude_none=True,
-    dependencies=[Depends(current_user)],
+    response_model=list[DonationDBShort],
+    response_model_exclude={'invested_amount'},
+    response_model_exclude_none=True
 )
 async def get_my_donations(
-        session: AsyncSession = Depends(get_async_session),
-        user: User = Depends(current_user),
-):
-    return await donation_crud.get_by_user(session=session, user=user)
+    session: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_user)
+) -> list[DonationDBShort]:
+    """GET-запрос на получение списка пожертвований пользователя."""
+    return await donation_crud.get_by_user(user, session)
+
+
+@router.post(
+    '/',
+    response_model=DonationDBShort,
+    response_model_exclude_none=True
+)
+async def create_donation(
+    obj_in: DonationCreate,
+    session: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_user)
+) -> DonationDBShort:
+    """POST-запрос на создание пожертвования."""
+    return await investmentService(session).create_donation(obj_in, user)

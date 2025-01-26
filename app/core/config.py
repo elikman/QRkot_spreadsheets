@@ -1,18 +1,22 @@
-import logging
-import sys
+"""
+Модуль настроек проекта 'QRKot'.
+"""
 from typing import Optional
 
-from pydantic import BaseSettings, EmailStr
+from pydantic import EmailStr
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    app_title: str = 'Кошачий благотворительный фонд (0.2.0)'
-    description: str = 'Сервис для поддержки котиков!'
-    database_url: str = 'sqlite+aiosqlite:///./Catcharity.db'
+    """Класс настроек проекта 'QRKot'."""
+
+    app_title: str = 'QRKot'
+    app_description: str = 'Приложение сбора пожертвований для котиков'
+    database_url: str = 'sqlite+aiosqlite:///./fastapi.db'
     secret: str = 'SECRET'
     first_superuser_email: Optional[EmailStr] = None
     first_superuser_password: Optional[str] = None
-
+    # Переменные для Google API
     type: Optional[str] = None
     project_id: Optional[str] = None
     private_key_id: Optional[str] = None
@@ -30,10 +34,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
-logging.basicConfig(
-    level=logging.INFO,
-    stream=sys.stdout,
-    format=('%(asctime)s | %(levelname)s | %(message)s '
-            '| %(filename)s:%(lineno)d '),
-)

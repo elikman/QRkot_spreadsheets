@@ -1,13 +1,16 @@
+"""
+Модуль настройки для подключения к GoogleAPI.
+"""
 from aiogoogle import Aiogoogle
 from aiogoogle.auth.creds import ServiceAccountCreds
 
 from app.core.config import settings
 
-
 SCOPES = [
     'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/drive'
 ]
+
 INFO = {
     'type': settings.type,
     'project_id': settings.project_id,
@@ -25,5 +28,6 @@ cred = ServiceAccountCreds(scopes=SCOPES, **INFO)
 
 
 async def get_service():
+    """Создаёт экземпляр класса Aiogoogle"""
     async with Aiogoogle(service_account_creds=cred) as aiogoogle:
         yield aiogoogle

@@ -11,6 +11,7 @@ from alembic import context
 
 from app.core.base import Base
 
+
 load_dotenv('.env')
 
 # this is the Alembic Config object, which provides
@@ -29,6 +30,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -61,7 +63,11 @@ def run_migrations_offline():
 
 
 def do_run_migrations(connection):
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        render_as_batch=True
+    )
 
     with context.begin_transaction():
         context.run_migrations()

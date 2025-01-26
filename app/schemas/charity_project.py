@@ -1,50 +1,45 @@
-from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Extra, Field, PositiveInt
+from pydantic import BaseModel, Field, Extra
+from pydantic.types import PositiveInt
+
+from .base_schemas import BaseSchema, BaseDBSchema
 
 
-class CharityProjectBase(BaseModel):
-    """Базовая схема проекта."""
+MIN_LENGTH = 1
+MAX_LENGTH = 100
 
-    name: Optional[str] = Field(None, max_length=100)
-    description: Optional[str] = Field(None)
-    full_amount: Optional[PositiveInt] = Field(None)
+
+class CharityProjectCreateSchema(BaseSchema):
+    name: str = Field(
+        ...,
+        min_length=MIN_LENGTH,
+        max_length=MAX_LENGTH
+    )
+    description: str = Field(
+        ...,
+        min_length=MIN_LENGTH
+    )
 
     class Config:
-        """Конфигурация для CharityProjectBase."""
-
         extra = Extra.forbid
-        min_anystr_length = 1
 
 
-class CharityProjectCreate(BaseModel):
-    """Схема для создания проекта."""
-
-    name: str = Field(..., max_length=100)
-    description: str = Field(...)
-    full_amount: PositiveInt = Field(...)
-
-    class Config:
-        """Конфигурация для CharityProjectCreate."""
-
-        min_anystr_length = 1
-
-
-class CharityProjectDB(CharityProjectCreate):
-    """Схема проекта в базе данных."""
-
-    id: int
-    invested_amount: int = Field(0)
-    fully_invested: bool = Field(False)
-    create_date: datetime
-    close_date: Optional[datetime]
+class CharityProjectUpdateSchema(BaseModel):
+    name: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH,
+        max_length=MAX_LENGTH
+    )
+    description: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH
+    )
+    full_amount: Optional[PositiveInt]
 
     class Config:
-        """Конфигурация для CharityProjectDB."""
-
-        orm_mode = True
+        extra = Extra.forbid
 
 
-class CharityProjectUpdate(CharityProjectBase):
-    """Схема для обновления проекта."""
+class CharityProjectDBSchema(CharityProjectCreateSchema, BaseDBSchema):
+    pass

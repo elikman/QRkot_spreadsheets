@@ -1,27 +1,24 @@
-from typing import List
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.base import CRUDBase
 from app.models import Donation, User
+from .base import CRUDBase
 
 
 class CRUDDonation(CRUDBase):
-    """Класс для операций CRUD с пожертвованиями."""
 
-    async def get_by_user(
-        self,
-        user: User,
-        session: AsyncSession,
-    ) -> List[Donation]:
-        """Получение всех пожертвований пользователя по его ID."""
-        donations = await session.execute(
-            select(Donation).where(
-                Donation.user_id == user.id,
-            )
-        )
-        return donations.scalars().all()
+    async def get_multi(
+            self,
+            session: AsyncSession,
+            user: Optional[User] = None
+    ):
+        select_ = select(self.model)
+        if user and not user.is_superuser:
+            select_ = select_.where(self.model.user_id == user.id)
+        db_objs = await session.execute(select_)
+        return db_objs.scalars().all()
 
 
-crud_donation = CRUDDonation(Donation)
+donation_crud = CRUDDonation(Donation)

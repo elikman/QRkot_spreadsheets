@@ -1,10 +1,20 @@
-from sqlalchemy import Column, String, Text
+from sqlalchemy import (
+    Column,
+    String,
+    Text
+)
 
-from app.models.base import BaseModel
+from .abstract_models import BaseFields
 
 
-class CharityProject(BaseModel):
-    """Модель для благотворительного проекта."""
+NAME_LENGTH = 100
 
-    name = Column(String(100), unique=True, nullable=False)
-    description = Column(Text, nullable=False)
+
+class CharityProject(BaseFields):
+    name = Column(String(NAME_LENGTH), unique=True, nullable=False)
+    description = Column(Text)
+
+    def __repr__(self):
+        return (
+            f'{self.name=} {super().__repr__()}'
+        )

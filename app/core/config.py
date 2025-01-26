@@ -4,15 +4,20 @@ from pydantic import BaseSettings, EmailStr
 
 
 class Settings(BaseSettings):
-    """Настройки приложения."""
-
-    app_title: str = 'Кошачий благотворительный фонд'
-    app_description: str = 'Сервис для поддержки котиков!'
-    database_url: str = 'sqlite+aiosqlite:///./qrkot.db'
+    app_title: str = 'Благотворительный фонд'
+    description: str = (
+        'Фонд собирает пожертвования на различные целевые проекты: '
+        'на медицинское обслуживание нуждающихся хвостатых, '
+        'на обустройство кошачьей колонии в подвале, на '
+        'корм оставшимся без попечения кошкам — на любые цели, '
+        'связанные с поддержкой кошачьей популяции'
+    )
+    database_url: str = 'sqlite+aiosqlite:///./fastapi.db'
     secret: str = 'SECRET'
     first_superuser_email: Optional[EmailStr] = None
     first_superuser_password: Optional[str] = None
-    # Переменные для Google API
+    lifetime_seconds: int = 3600
+
     type: Optional[str] = None
     project_id: Optional[str] = None
     private_key_id: Optional[str] = None
@@ -26,8 +31,6 @@ class Settings(BaseSettings):
     email: Optional[str] = None
 
     class Config:
-        """Конфигурация загрузки из .env."""
-
         env_file = '.env'
 
 

@@ -194,7 +194,8 @@ def test_get_all_charity_project(user_client):
             'name': 'nunchaku',
         },
     ], (
-        f'При GET-запросе к эндпоинту `{PROJECTS_URL}` тело ответа API отличается '
+        f'При GET-запросе к эндпоинту `{PROJECTS_URL}` тело ответа API '
+        'отличается '
         'от ожидаемого.'
     )
 
@@ -578,7 +579,8 @@ def test_patch_charity_project_fully_invested(
     )
     data = response.json()
     assert 'detail' in data, (
-        f'{common_message_part} ответ должен содержать ключ `detail` с описанием '
+        f'{common_message_part} ответ должен содержать ключ `detail` с '
+        'описанием '
         'ошибки.'
     )
 
@@ -628,7 +630,8 @@ def test_create_charity_project_diff_time(superuser_client):
     nunchakus_create_date = response_nunchaku.json()['create_date']
     assert chimichangas_create_date != nunchakus_create_date, (
         'Убедитесь, что при создании двух проектов подряд '
-        'время создания этих проектов (значение поля `create_date`) отличается. '
+        'время создания этих проектов (значение поля `create_date`) '
+        'отличается. '
         'Проверьте значение по умолчанию у атрибута `create_date`.'
     )
 

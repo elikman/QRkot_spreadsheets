@@ -13,7 +13,7 @@ except (NameError, ImportError) as error:
     raise AssertionError(
         'При импорте объекта приложения `app` из модуля `app.main` '
         f'возникло исключение:\n{type(error).__name__}: {error}.'
-    )
+    ) from error
 
 try:
     from app.core.db import Base, get_async_session  # noqa
@@ -22,7 +22,7 @@ except (NameError, ImportError) as error:
         'При импорте объектов `Base, get_async_session` '
         'из модуля `app.core.db` возникло исключение:\n'
         f'{type(error).__name__}: {error}.'
-    )
+    ) from error
 
 try:
     from app.core.user import current_superuser, current_user  # noqa
@@ -31,7 +31,7 @@ except (NameError, ImportError) as error:
         'При импорте объектов `current_superuser, current_user` '
         'из модуля `app.core.user` возникло исключение:\n'
         f'{type(error).__name__}: {error}.'
-    )
+    ) from error
 
 try:
     from app.schemas.user import UserCreate  # noqa
@@ -40,7 +40,7 @@ except (NameError, ImportError) as error:
         'При импорте схемы `UserCreate` из модуля `app.schemas.user` '
         'возникло исключение:\n'
         f'{type(error).__name__}: {error}.'
-    )
+    ) from error
 
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent

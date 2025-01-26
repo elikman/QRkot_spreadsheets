@@ -1,45 +1,50 @@
-"""
-Модуль схем 'CharityProject'.
-"""
-from typing import Optional
 from datetime import datetime
+from typing import Optional
 
-from pydantic import BaseModel, Field, PositiveInt, Extra
-
-from app.core.constants import MAX_PROJECT_NAME_LENGTH, MIN_ANYSTR_LENGTH
+from pydantic import BaseModel, Extra, Field, PositiveInt
 
 
-class CharityProjectUpdate(BaseModel):
-    """Схема обновления 'CharityProject'."""
+class CharityProjectBase(BaseModel):
+    """Базовая схема проекта."""
 
-    name: Optional[str] = Field(
-        None,
-        max_length=MAX_PROJECT_NAME_LENGTH,
-    )
-    description: Optional[str]
-    full_amount: Optional[PositiveInt]
+    name: Optional[str] = Field(None, max_length=100)
+    description: Optional[str] = Field(None)
+    full_amount: Optional[PositiveInt] = Field(None)
 
     class Config:
+        """Конфигурация для CharityProjectBase."""
+
         extra = Extra.forbid
-        min_anystr_length = MIN_ANYSTR_LENGTH
+        min_anystr_length = 1
 
 
-class CharityProjectCreate(CharityProjectUpdate):
-    """Схема создания 'CharityProject'."""
+class CharityProjectCreate(BaseModel):
+    """Схема для создания проекта."""
 
-    name: str = Field(max_length=MAX_PROJECT_NAME_LENGTH)
-    description: str
-    full_amount: PositiveInt
+    name: str = Field(..., max_length=100)
+    description: str = Field(...)
+    full_amount: PositiveInt = Field(...)
+
+    class Config:
+        """Конфигурация для CharityProjectCreate."""
+
+        min_anystr_length = 1
 
 
-class CharityProjectDB(CharityProjectUpdate):
-    """Схема ответа из базы данных."""
+class CharityProjectDB(CharityProjectCreate):
+    """Схема проекта в базе данных."""
 
     id: int
-    invested_amount: int
-    fully_invested: bool
+    invested_amount: int = Field(0)
+    fully_invested: bool = Field(False)
     create_date: datetime
     close_date: Optional[datetime]
 
     class Config:
+        """Конфигурация для CharityProjectDB."""
+
         orm_mode = True
+
+
+class CharityProjectUpdate(CharityProjectBase):
+    """Схема для обновления проекта."""

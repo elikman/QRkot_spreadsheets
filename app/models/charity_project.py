@@ -1,18 +1,10 @@
-"""
-Модуль модели 'CharityProject'.
-"""
 from sqlalchemy import Column, String, Text
 
-from .abstract_model import AbstractProjectDonation
-from app.core.constants import MAX_PROJECT_NAME_LENGTH
+from app.models.base import BaseModel
 
 
-class CharityProject(AbstractProjectDonation):
-    """Модель 'CharityProject'."""
+class CharityProject(BaseModel):
+    """Модель для благотворительного проекта."""
 
-    name = Column(
-        String(MAX_PROJECT_NAME_LENGTH),
-        unique=True,
-        nullable=False,
-    )
+    name = Column(String(100), unique=True, nullable=False)
     description = Column(Text, nullable=False)

@@ -1,19 +1,13 @@
-"""
-Модуль схем 'User'.
-"""
 from fastapi_users import schemas
 
 
 class UserRead(schemas.BaseUser[int]):
-    """Схема чтения 'User'."""
-    pass
+    """Схема для чтения данных пользователя."""
 
 
 class UserCreate(schemas.BaseUserCreate):
-    """Схема создания 'User'."""
-    pass
+    """Схема для создания пользователя."""
 
 
 class UserUpdate(schemas.BaseUserUpdate):
-    """Схема обновления 'User'."""
-    pass
+    """Схема для обновления данных пользователя."""

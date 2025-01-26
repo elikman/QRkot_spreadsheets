@@ -1,18 +1,14 @@
-"""
-Модуль настроек проекта 'QRKot'.
-"""
 from typing import Optional
 
-from pydantic import EmailStr
-from pydantic_settings import BaseSettings
+from pydantic import BaseSettings, EmailStr
 
 
 class Settings(BaseSettings):
-    """Класс настроек проекта 'QRKot'."""
+    """Настройки приложения."""
 
-    app_title: str = 'QRKot'
-    app_description: str = 'Приложение сбора пожертвований для котиков'
-    database_url: str = 'sqlite+aiosqlite:///./fastapi.db'
+    app_title: str = 'Кошачий благотворительный фонд'
+    app_description: str = 'Сервис для поддержки котиков!'
+    database_url: str = 'sqlite+aiosqlite:///./qrkot.db'
     secret: str = 'SECRET'
     first_superuser_email: Optional[EmailStr] = None
     first_superuser_password: Optional[str] = None
@@ -30,6 +26,8 @@ class Settings(BaseSettings):
     email: Optional[str] = None
 
     class Config:
+        """Конфигурация загрузки из .env."""
+
         env_file = '.env'
 
 

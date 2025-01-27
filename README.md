@@ -57,7 +57,7 @@ mkdir cat_charity_fund
 cd cat_charity_fund
 ```
 ```
-git clone https://github.com/KomkovAleksey/cat_charity_fund
+git clone https://github.com/elikman/QRkot_spreadsheets.git
 ```
 Cоздайте и активируйте виртуальное окружение:
 

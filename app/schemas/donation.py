@@ -1,24 +1,29 @@
+from datetime import datetime
 from typing import Optional
 
-from .base_schemas import BaseSchema, BaseDBSchema
+from pydantic import BaseModel, Extra, PositiveInt
+
+from app.schemas.shema_mixing import InvestmentDB
 
 
-class DonationCreateSchema(BaseSchema):
-    comment: Optional[str] = None
+class DonationCreate(BaseModel):
+
+    full_amount: PositiveInt
+    comment: Optional[str]
+
+    class Config:
+        extra = Extra.forbid
 
 
-class DonationDBSchema(DonationCreateSchema, BaseDBSchema):
-    user_id: int
+class DonationDB(DonationCreate):
 
+    id: int
+    create_date: datetime
 
-class UserDonationDBSchema(DonationCreateSchema, BaseDBSchema):
     class Config:
         orm_mode = True
-        schema_extra = {
-            'example': {
-                'id': 1,
-                'full_amount': 500,
-                'comment': 'My donation',
-                'create_date': '2024-09-25T13:27:29.873589'
-            }
-        }
+
+
+class DonationsDB(InvestmentDB, DonationCreate):
+
+    user_id: int

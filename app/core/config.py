@@ -3,21 +3,21 @@ from typing import Optional
 from pydantic import BaseSettings, EmailStr
 
 
+MIN_PASSWORD_LENGTH = 3
+FORMAT = "%Y/%m/%d %H:%M:%S"
+USER = 'user'
+WRITER = 'writer'
+FUNDRAISING_DURATION = 'duration'
+
+
 class Settings(BaseSettings):
-    app_title: str = 'Благотворительный фонд'
-    description: str = (
-        'Фонд собирает пожертвования на различные целевые проекты: '
-        'на медицинское обслуживание нуждающихся хвостатых, '
-        'на обустройство кошачьей колонии в подвале, на '
-        'корм оставшимся без попечения кошкам — на любые цели, '
-        'связанные с поддержкой кошачьей популяции'
-    )
+    app_title: str = 'Cat Charitable Foundation'
+    description: str = 'Service to support cats!'
     database_url: str = 'sqlite+aiosqlite:///./fastapi.db'
     secret: str = 'SECRET'
     first_superuser_email: Optional[EmailStr] = None
     first_superuser_password: Optional[str] = None
-    lifetime_seconds: int = 3600
-
+    # Variables for Google API
     type: Optional[str] = None
     project_id: Optional[str] = None
     private_key_id: Optional[str] = None

@@ -1,82 +1,65 @@
 from typing import Optional
 
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import select, asc
+from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.db import Base
 from app.models import User
 
 
 class CRUDBase:
+    """Base class for basic database operations."""
 
     def __init__(self, model):
         self.model = model
 
-    async def get(
-            self,
-            obj_id: int,
-            session: AsyncSession,
-    ):
-        db_obj = await session.execute(
-            select(self.model).where(
-                self.model.id == obj_id
-            )
+    async def get(self, object_id: int, session: AsyncSession):
+        db_object = await session.execute(
+            select(self.model).where(object_id == self.model.id)
         )
-        return db_obj.scalars().first()
+        return db_object.scalars().first()
 
-    async def get_multi(
-            self,
-            session: AsyncSession,
-    ):
-        db_objs = await session.execute(select(self.model))
-        return db_objs.scalars().all()
+    async def get_multi(self, session: AsyncSession):
+        db_objects = await session.execute(select(self.model))
+        return db_objects.scalars().all()
 
     async def create(
-            self,
-            obj_in,
-            session: AsyncSession,
-            user: Optional[User] = None
+        self,
+        object_in: BaseModel,
+        session: AsyncSession,
+        user: Optional[User] = None
     ):
-        obj_in_data = obj_in.dict()
+        object_in_data = object_in.dict()
         if user is not None:
-            obj_in_data['user_id'] = user.id
-        db_obj = self.model(**obj_in_data)
-        session.add(db_obj)
-        return db_obj
-
-    async def get_not_fully_invested_objects(
-            self, session: AsyncSession
-    ):
-        objects = await session.execute(
-            select(self.model).where(
-                self.model.fully_invested.is_(False)
-            ).order_by(asc(self.model.create_date))
-        )
-        objects = objects.scalars().all()
-        return objects
+            object_in_data['user_id'] = user.id
+        db_objects = self.model(**object_in_data)
+        session.add(db_objects)
+        await session.commit()
+        await session.refresh(db_objects)
+        return db_objects
 
     async def update(
-            self,
-            db_obj,
-            obj_in,
-            session: AsyncSession,
+        self,
+        db_object: Base,
+        object_in: BaseModel,
+        session: AsyncSession
     ):
-        obj_data = jsonable_encoder(db_obj)
-        update_data = obj_in.dict(exclude_unset=True)
-
-        for field in obj_data:
-            if field in update_data:
-                setattr(db_obj, field, update_data[field])
-        session.add(db_obj)
+        # Representing the object from the database in a dictionary
+        db_data = jsonable_encoder(db_object)
+        # Converting an object with query data to a dictionary
+        # And exclude the fields not set by the user
+        new_data = object_in.dict(exclude_unset=True)
+        for field in db_data:
+            if field in new_data:
+                setattr(db_object, field, new_data[field])
+        session.add(db_object)
         await session.commit()
-        await session.refresh(db_obj)
-        return db_obj
+        await session.refresh(db_object)
+        return db_object
 
-    async def remove(
-            self,
-            db_obj,
-            session: AsyncSession,
-    ):
-        await session.delete(db_obj)
+    async def remove(self, db_object: Base, session: AsyncSession):
+        await session.delete(db_object)
         await session.commit()
-        return db_obj
+        return db_object

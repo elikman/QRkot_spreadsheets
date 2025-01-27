@@ -1,84 +1,51 @@
 from fastapi import APIRouter, Depends
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
-from app.models import User
-from app.schemas.donation import (
-    DonationDBSchema,
-    DonationCreateSchema,
-    UserDonationDBSchema
-)
 from app.core.user import current_superuser, current_user
-from app.crud.donation import donation_crud
-from app.crud.charity_project import charity_project_crud
-from app.services.investing_processes import investing_process
-
-
-USER_DONATION_FIELDS = {
-    'id',
-    'full_amount',
-    'comment',
-    'create_date'
-}
+from app.crud import donation_crud
+from app.models import User
+from app.schemas import DonationCreate, DonationDB, DonationsDB
+from app.services.money_flow import money_flow
 
 
 router = APIRouter()
 
 
-@router.post(
-    '/',
-    response_model=UserDonationDBSchema,
-    response_model_include=USER_DONATION_FIELDS,
-    response_model_exclude_none=True,
-)
-async def create_donation(
-        donation_data: DonationCreateSchema,
-        user: User = Depends(current_user),
-        session: AsyncSession = Depends(get_async_session),
-):
-    donation = await donation_crud.create(
-        obj_in=donation_data,
-        session=session,
-        user=user
-    )
-    projects = await charity_project_crud.get_not_fully_invested_objects(
-        session=session
-    )
-    projects = investing_process(
-        target=donation,
-        sources=projects
-    )
-    session.add_all(projects)
-    await session.commit()
-    await session.refresh(donation)
-    return donation
-
-
 @router.get(
     '/',
-    response_model=list[DonationDBSchema],
+    response_model=list[DonationsDB],
     response_model_exclude_none=True,
     dependencies=[Depends(current_superuser)]
 )
 async def get_all_donations(
-        session: AsyncSession = Depends(get_async_session),
+    session: AsyncSession = Depends(get_async_session)
 ):
-    """Только для суперюзеров."""
+    """
+    Only for superusers.
 
-    donations = await donation_crud.get_multi(session=session)
-    return donations
+    Returns the list of all donations.
+    """
+    return await donation_crud.get_multi(session)
 
 
-@router.get(
-    '/my',
-    response_model=list[UserDonationDBSchema],
-    response_model_include=USER_DONATION_FIELDS,
-    response_model_exclude_none=True,
-)
+@router.post('/', response_model=DonationDB, response_model_exclude_none=True)
+async def create_donation(
+    donation: DonationCreate,
+    session: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_user)
+):
+    """Make a donation."""
+    new_donation = await donation_crud.create(donation, session, user)
+    await money_flow(session)
+    await session.refresh(new_donation)
+    return new_donation
+
+
+@router.get('/my', response_model=list[DonationDB])
 async def get_user_donations(
-        user: User = Depends(current_user),
-        session: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_user),
+    session: AsyncSession = Depends(get_async_session)
 ):
-    donations = await donation_crud.get_multi(session=session, user=user)
-    return donations
+    """Return a list of donations from the user making the request."""
+    return await donation_crud.get_donations_by_user(user, session)

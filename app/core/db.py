@@ -1,12 +1,13 @@
-from sqlalchemy import Column, Integer
+from datetime import datetime
+
+from sqlalchemy import Boolean, Column, DateTime, Integer
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declared_attr, sessionmaker, as_declarative
+from sqlalchemy.orm import declarative_base, declared_attr, sessionmaker
 
 from app.core.config import settings
 
 
-@as_declarative()
-class Base:
+class PreBase:
 
     @declared_attr
     def __tablename__(cls):
@@ -15,8 +16,18 @@ class Base:
     id = Column(Integer, primary_key=True)
 
 
-engine = create_async_engine(settings.database_url)
+class Investment:
+    """Parent class for some money-related classes."""
 
+    full_amount = Column(Integer, nullable=False)
+    invested_amount = Column(Integer, default=0, nullable=False)
+    fully_invested = Column(Boolean, default=False, nullable=False)
+    create_date = Column(DateTime, default=datetime.now, nullable=False)
+    close_date = Column(DateTime)
+
+
+Base = declarative_base(cls=PreBase)
+engine = create_async_engine(settings.database_url)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession)
 
 

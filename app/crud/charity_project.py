@@ -1,46 +1,55 @@
-from typing import Optional
+from datetime import timedelta
+from typing import Optional, Union
 
-from sqlalchemy import select, func, asc
+from sqlalchemy import func, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import FUNDRAISING_DURATION
+from app.crud.base import CRUDBase
 from app.models import CharityProject
-from .base import CRUDBase
 
 
 class CRUDCharityProject(CRUDBase):
 
     async def get_project_id_by_name(
-            self,
-            project_name: str,
-            session: AsyncSession,
+        self,
+        project_name: str,
+        session: AsyncSession
     ) -> Optional[int]:
-        project_id = await session.execute(
-            select(self.model.id).where(
-                self.model.name == project_name
+        db_project_id = await session.execute(
+            select(CharityProject.id).where(
+                project_name == CharityProject.name
             )
         )
-        project_id = project_id.scalars().first()
-        return project_id
+        return db_project_id.scalars().first()
 
-    async def get_faster_closed_projects(
-            self,
-            session: AsyncSession
-    ):
-        projects = await session.execute(
+    async def get_projects_by_completion_rate(
+            self, session: AsyncSession
+    ) -> list[dict[str, Union[str, timedelta]]]:
+        """
+        Provides closed projects sorted by fundraising duration.
+
+        Columns:
+
+        Project name - fundraising duration - project description
+        """
+        datetime_difference_in_days = (
+            func.julianday(
+                CharityProject.close_date
+            ) - func.julianday(
+                CharityProject.create_date
+            )).label(FUNDRAISING_DURATION)
+        closed_projects = await session.execute(
             select(
-                self.model.name,
-                self.model.close_date,
-                self.model.create_date,
-                self.model.description,
+                CharityProject.name,
+                datetime_difference_in_days,
+                CharityProject.description
             ).where(
-                self.model.fully_invested.is_(True)
-            ).order_by(asc(
-                func.extract('day', self.model.close_date) -
-                func.extract('day', self.model.create_date)
-            ))
+                CharityProject.fully_invested == true()
+            ).order_by(FUNDRAISING_DURATION)
         )
-        projects = projects.all()
-        return projects
+        closed_projects = closed_projects.all()
+        return closed_projects
 
 
-charity_project_crud = CRUDCharityProject(CharityProject)
+charity_crud = CRUDCharityProject(CharityProject)

@@ -8,38 +8,38 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 try:
-    from app.main import app  # noqa
-except (NameError, ImportError) as error:
+    from app.main import app
+except (NameError, ImportError):
     raise AssertionError(
-        'При импорте объекта приложения `app` из модуля `app.main` '
-        f'возникло исключение:\n{type(error).__name__}: {error}.'
+        'Не обнаружен объект приложения `app`.'
+        'Проверьте и поправьте: он должен быть доступен в модуле `app.main`.',
     )
 
 try:
-    from app.core.db import Base, get_async_session  # noqa
-except (NameError, ImportError) as error:
+    from app.core.db import Base, get_async_session
+except (NameError, ImportError):
     raise AssertionError(
-        'При импорте объектов `Base, get_async_session` '
-        'из модуля `app.core.db` возникло исключение:\n'
-        f'{type(error).__name__}: {error}.'
+        'Не обнаружены объекты `Base, get_async_session`. '
+        'Проверьте и поправьте: они должны быть доступны в модуле '
+        '`app.core.db`.',
     )
 
 try:
-    from app.core.user import current_superuser, current_user  # noqa
-except (NameError, ImportError) as error:
+    from app.core.user import current_superuser, current_user
+except (NameError, ImportError):
     raise AssertionError(
-        'При импорте объектов `current_superuser, current_user` '
-        'из модуля `app.core.user` возникло исключение:\n'
-        f'{type(error).__name__}: {error}.'
+        'Не обнаружены объекты `current_superuser, current_user`.'
+        'Проверьте и поправьте: они должны быть доступны в модуле '
+        '`app.code.user`',
     )
 
 try:
-    from app.schemas.user import UserCreate  # noqa
-except (NameError, ImportError) as error:
+    from app.schemas.user import UserCreate
+except (NameError, ImportError):
     raise AssertionError(
-        'При импорте схемы `UserCreate` из модуля `app.schemas.user` '
-        'возникло исключение:\n'
-        f'{type(error).__name__}: {error}.'
+        'Не обнаружена схема создания пользователя UserCreate. '
+        'Проверьте и поправьте: она должна быть доступна в модуле '
+        '`app.schemas.user`.',
     )
 
 

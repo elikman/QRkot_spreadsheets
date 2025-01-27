@@ -1,45 +1,32 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field, Extra
-from pydantic.types import PositiveInt
+from pydantic import BaseModel, Extra, Field, PositiveInt, validator
 
-from .base_schemas import BaseSchema, BaseDBSchema
-
-
-MIN_LENGTH = 1
-MAX_LENGTH = 100
+from app.schemas.shema_mixing import InvestmentDB
 
 
-class CharityProjectCreateSchema(BaseSchema):
-    name: str = Field(
-        ...,
-        min_length=MIN_LENGTH,
-        max_length=MAX_LENGTH
-    )
-    description: str = Field(
-        ...,
-        min_length=MIN_LENGTH
-    )
+class CharityProjectCreate(BaseModel):
+
+    name: str = Field(min_length=1, max_length=100)
+    description: str = Field(min_length=1)
+    full_amount: PositiveInt
+
+    @validator('name', 'description')
+    def cannot_be_only_spaces(cls, value: str):
+        if value.isspace():
+            raise ValueError('The fields cannot be empty!')
+        return value
 
     class Config:
         extra = Extra.forbid
 
 
-class CharityProjectUpdateSchema(BaseModel):
-    name: Optional[str] = Field(
-        None,
-        min_length=MIN_LENGTH,
-        max_length=MAX_LENGTH
-    )
-    description: Optional[str] = Field(
-        None,
-        min_length=MIN_LENGTH
-    )
+class CharityProjectUpdate(CharityProjectCreate):
+
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    description: Optional[str] = Field(None, min_length=1)
     full_amount: Optional[PositiveInt]
 
-    class Config:
-        extra = Extra.forbid
 
-
-class CharityProjectDBSchema(CharityProjectCreateSchema, BaseDBSchema):
+class CharityProjectDB(InvestmentDB, CharityProjectCreate):
     pass

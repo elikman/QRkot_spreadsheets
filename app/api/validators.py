@@ -3,62 +3,54 @@ from http import HTTPStatus
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.charity_project import charity_project_crud
+from app.core.db import Base
+from app.crud import charity_crud
 from app.models import CharityProject
+from app.services.money_flow import to_close
 
 
-NAME_DUPLICATE = 'Проект с таким именем уже существует!'
-DELETION_OR_MODIFICATION_ERROR = (
-    'Удалять или модифицировать закрытые проекты запрещено!'
-)
-FULL_AMOUNT_LESS_THAN_INVESTED_AMOUNT = (
-    'Требуемая сумма не может быть меньше внесенной!'
-)
-INVESTED_AMOUNT_ISNT_EMPTY = (
-    'В проекте имеются инвестиции!'
-)
-
-
-async def check_name_duplicate(
-        project_name: str,
-        session: AsyncSession,
+async def check_project_name_duplicate(
+    name: str, session: AsyncSession
 ) -> None:
-    project_id = await charity_project_crud.get_project_id_by_name(
-        project_name, session
-    )
-    if project_id is not None:
+    project_id = await charity_crud.get_project_id_by_name(name, session)
+    if project_id:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail=NAME_DUPLICATE,
+            detail='Проект с таким именем уже существует!'
         )
 
 
-def check_fully_invested(
-        obj: CharityProject
+async def check_charity_project_exists(
+    project_id: int,
+    session: AsyncSession
+) -> CharityProject:
+    charity_project = await charity_crud.get(project_id, session)
+    if charity_project is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='The project not found!'
+        )
+    return charity_project
+
+
+async def check_charity_project_closed(
+    project_id: int,
+    session: AsyncSession
 ) -> None:
-    if obj.fully_invested:
+    charity_project = await charity_crud.get(project_id, session)
+    if charity_project.fully_invested:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail=DELETION_OR_MODIFICATION_ERROR,
+            detail='Закрытый проект нельзя редактировать!'
         )
 
 
-def check_full_amount_less_than_invested_amount(
-        new_full_amount: int,
-        invested_amount: int
-) -> None:
-    if new_full_amount < invested_amount:
+async def check_new_full_amount(full_amount: int, model: Base) -> None:
+    """Will close the product if new full_amount equals invested_amount."""
+    if full_amount < model.invested_amount:
         raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail=FULL_AMOUNT_LESS_THAN_INVESTED_AMOUNT,
+            status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+            detail='New full_amount is less then the invested_amount!'
         )
-
-
-def check_empty_invested_amount(
-        invested_amount: int
-) -> None:
-    if invested_amount:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail=INVESTED_AMOUNT_ISNT_EMPTY,
-        )
+    if full_amount == model.invested_amount:
+        to_close(model)

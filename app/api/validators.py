@@ -27,8 +27,10 @@ async def check_project_name_duplicate(
     Raises:
         HTTPException: Если проект с указанным именем уже существует.
     """
-    project_id: Optional[int] = await charity_crud.get_project_id_by_name(name,
-                                                                          session)
+    project_id: Optional[int] = await charity_crud.get_project_id_by_name(
+        name,
+        session
+        )
     if project_id:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
@@ -85,8 +87,10 @@ async def check_project_before_delete(project: CharityProject) -> None:
     if project.fully_invested is False:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail="Нельзя удалять проект, у которого есть незавершённые"
-                                                        "инвестиции!"
+            detail=(
+                "Нельзя удалять проект, у которого есть незавершённые
+                "инвестиции!"
+                )
         )
 
 

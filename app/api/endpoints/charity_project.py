@@ -79,8 +79,7 @@ async def delete_charity_project(
     '/{project_id}',
     response_model=CharityProjectDB,
     dependencies=[Depends(current_superuser)],
-    summary="Обновить благотворительный проект (
-    "только для суперпользователей)."
+    summary="Обновить благотворительный проект
 )
 async def update_charity_project(
     project_id: int,

@@ -23,7 +23,6 @@ class Donation(Investment, Base):
             f"amount={self.full_amount}) >"
         )
 
-
     __mapper_args__ = {
         'inherit_condition': text("Investment.id == Donation.id")
     }

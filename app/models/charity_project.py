@@ -1,23 +1,9 @@
-from sqlalchemy import Column, String, Text, Integer, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, Text
 
-from app.core.db import Base
+from app.models.investment import Investment, Base
 
 
-class CharityProject(Base):
-    """Модель благотворительного проекта, которая может быть связана с
-    инвестициями."""
+class CharityProject(Investment, Base):
 
-    __tablename__ = 'charity_project'
-
-    id = Column(Integer, primary_key=True)
     name = Column(String(100), unique=True, nullable=False)
     description = Column(Text, nullable=False)
-
-    investment_id = Column(Integer, ForeignKey('investment.id'))
-
-    investment = relationship("Investment", backref="charity_projects")
-
-    def __repr__(self) -> str:
-        """Строковое представление объекта CharityProject."""
-        return f"<CharityProject(id={self.id}, name={self.name})>"

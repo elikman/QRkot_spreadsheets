@@ -21,25 +21,23 @@ logging.basicConfig(level=logging.INFO)
 
 
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):
-    """
-    Provides access to the database through SQLAlchemy and used as a
-    dependency for the UserManager class object.
-    """
+    """ 
+    Предоставляет доступ к базе данных через SQLAlchemy. 
+    Используется как зависимость для объекта класса UserManager. 
+    """ 
     yield SQLAlchemyUserDatabase(session, User)
 
 
-# Passing the token through the HTTP request header
 bearer_transport = BearerTransport(tokenUrl='auth/jwt/login')
 
 
 def get_jwt_strategy() -> JWTStrategy:
-    """Defines the strategy: storing the token as a JWT."""
+    """Определяет стратегию хранения токена JWT.""" 
     return JWTStrategy(secret=settings.secret, lifetime_seconds=3600)
 
 
-# Create an authentication backend object with the selected parameters.
 auth_backend = AuthenticationBackend(
-    name='jwt',  # must be unique.
+    name='jwt',
     transport=bearer_transport,
     get_strategy=get_jwt_strategy,
 )
@@ -52,23 +50,25 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         password: str,
         user: Union[UserCreate, User],
     ) -> None:
+        """Проверяет введённый пароль на соответствие правилам безопасности.""" 
         if len(password) < MIN_PASSWORD_LENGTH:
             raise InvalidPasswordException(
-                reason='Password should be at least 3 characters'
+                reason='Пароль должен быть не менее 3 символов.'
             )
         if user.email in password:
             raise InvalidPasswordException(
-                reason='Password should not contain e-mail'
+                reason='Пароль не должен содержать адрес электронной почты.'
             )
 
     async def on_after_register(
         self, user: User, request: Optional[Request] = None
     ) -> None:
-        """After successful user registration."""
-        logging.info(f'The user {user.email} is registered.')
+        """После успешной регистрации пользователя."""
+        logging.info(f'Пользователь {user.email} успешно зарегистрирован.')
 
 
 async def get_user_manager(user_db=Depends(get_user_db)):
+    """Возвращает экземпляр UserManager для управления пользователями."""
     yield UserManager(user_db)
 
 

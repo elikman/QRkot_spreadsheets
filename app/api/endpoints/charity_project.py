@@ -4,17 +4,26 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validators import (
-    check_charity_project_closed, check_charity_project_exists,
-    check_new_full_amount, check_project_name_duplicate
+    check_charity_project_closed,
+    check_charity_project_exists,
+    check_new_full_amount,
+    check_project_name_duplicate,
 )
 from app.core.db import get_async_session
 from app.core.user import current_superuser
 from app.crud import charity_crud
 from app.services.money_flow import money_flow
-from app.schemas import (
-    CharityProjectCreate, CharityProjectDB, CharityProjectUpdate
+from app.services.charity_project_service import (
+    create_project_service,
+    delete_project_service,
+    update_project_service,
+    get_all_projects_service,
 )
-
+from app.schemas import (
+    CharityProjectCreate,
+    CharityProjectDB,
+    CharityProjectUpdate,
+)
 
 router = APIRouter()
 
@@ -23,86 +32,70 @@ router = APIRouter()
     '/',
     response_model=CharityProjectDB,
     response_model_exclude_none=True,
-    dependencies=[Depends(current_superuser)]
+    dependencies=[Depends(current_superuser)],
+    summary="Создать благотворительный проект (доступно только суперпользователям)."
 )
 async def create_charity_project(
     project: CharityProjectCreate,
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
 ):
     """
-    Only for superusers.
-
-    Creates a charity project.
+    Создание благотворительного проекта.  
+    Доступно только для суперпользователей.
     """
-    await check_project_name_duplicate(project.name, session)
-    new_project = await charity_crud.create(project, session)
-    await money_flow(session)
-    await session.refresh(new_project)
+    new_project = await create_project_service(project, session)
     return new_project
 
 
 @router.get(
     '/',
     response_model=list[CharityProjectDB],
-    response_model_exclude_none=True
+    response_model_exclude_none=True,
+    summary="Получить список всех благотворительных проектов."
 )
 async def get_all_charity_projects(
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
 ):
-    """Returns the list of all projects."""
-    return await charity_crud.get_multi(session)
+    """
+    Возвращает список всех благотворительных проектов.
+    """
+    return await get_all_projects_service(session)
 
 
 @router.delete(
     '/{project_id}',
     response_model=CharityProjectDB,
-    dependencies=[Depends(current_superuser)]
+    dependencies=[Depends(current_superuser)],
+    summary="Удалить благотворительный проект (только для суперпользователей)."
 )
 async def delete_charity_project(
     project_id: int,
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
 ):
     """
-    Only for superusers.
-
-    Deletes a project.
-
-    You cannot delete a project in which funds have already been invested,
-    it can only be closed
+    Удаление благотворительного проекта.  
+    Нельзя удалить проект, в который уже внесены средства — его можно только закрыть.  
+    Доступно только для суперпользователей.
     """
-    charity_project = await check_charity_project_exists(project_id, session)
-    if charity_project.invested_amount:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail='В проект были внесены средства, не подлежит удалению!'
-        )
-    charity_project = await charity_crud.remove(charity_project, session)
+    charity_project = await delete_project_service(project_id, session)
     return charity_project
 
 
 @router.patch(
     '/{project_id}',
     response_model=CharityProjectDB,
-    dependencies=[Depends(current_superuser)]
+    dependencies=[Depends(current_superuser)],
+    summary="Обновить благотворительный проект (только для суперпользователей)."
 )
 async def update_charity_project(
     project_id: int,
     new_data: CharityProjectUpdate,
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
 ):
     """
-    Only for superusers.
-
-    A closed project cannot be updated;
-    you cannot set the required amount less than the amount already invested.
+    Обновление благотворительного проекта.  
+    Нельзя изменять закрытые проекты или устанавливать сумму меньше уже вложенных средств.  
+    Доступно только для суперпользователей.
     """
-    charity_project = await check_charity_project_exists(project_id, session)
-    await check_charity_project_closed(project_id, session)
-    if new_data.name:
-        await check_project_name_duplicate(name=new_data.name, session=session)
-    if new_data.full_amount:
-        await check_new_full_amount(new_data.full_amount, charity_project)
-    charity_project = await charity_crud.update(
-        charity_project, new_data, session
-    )
+    charity_project = await update_project_service(project_id, new_data, session)
     return charity_project

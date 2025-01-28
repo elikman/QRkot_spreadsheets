@@ -10,7 +10,7 @@ from app.models import User
 
 
 class CRUDBase:
-    """Базовый класс для базовых операций с базой данных."""
+    """Base class for basic database operations."""
 
     def __init__(self, model):
         self.model = model

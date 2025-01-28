@@ -2,17 +2,20 @@ from typing import Optional
 
 from pydantic import BaseSettings, EmailStr
 
-
+"""Минимально допустимая длина пароля."""
 MIN_PASSWORD_LENGTH = 3
-FORMAT = "%Y/%m/%d %H:%M:%S"
+
+FORMAT = '%Y/%m/%d %H:%M:%S'
 USER = 'user'
 WRITER = 'writer'
 FUNDRAISING_DURATION = 'duration'
 
 
 class Settings(BaseSettings):
-    app_title: str = 'Cat Charitable Foundation'
-    description: str = 'Service to support cats!'
+    """Настройки приложения."""
+
+    app_title: str = 'Благотворительный фонд кошек'
+    description: str = 'Сервис для поддержки кошек!'
     database_url: str = 'sqlite+aiosqlite:///./fastapi.db'
     secret: str = 'SECRET'
     first_superuser_email: Optional[EmailStr] = None
@@ -31,6 +34,7 @@ class Settings(BaseSettings):
     email: Optional[str] = None
 
     class Config:
+        env_prefix = 'APP_'
         env_file = '.env'
 
 

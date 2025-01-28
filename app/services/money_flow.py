@@ -8,7 +8,7 @@ from app.models import Donation, CharityProject
 
 
 def to_close(model: Base) -> None:
-    """Closes a project or a donation."""
+    """Закрывает проект или пожертвование."""
     model.close_date = datetime.now()
     model.fully_invested = True
 
@@ -20,7 +20,7 @@ async def __get_open_cases(model: Base, session: AsyncSession) -> list[Base]:
 
 
 async def money_flow(session: AsyncSession) -> None:
-    """The main function for mutual settlements."""
+    """Основная функция для взаиморасчетов."""
     projects = await __get_open_cases(CharityProject, session)
     donations = await __get_open_cases(Donation, session)
     for project in projects:

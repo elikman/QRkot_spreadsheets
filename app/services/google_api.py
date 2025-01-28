@@ -17,8 +17,8 @@ async def set_user_permissions(
     spreadsheet_id: str,
     wrapper_services: Aiogoogle
 ) -> None:
-    """Gives your personal account access to the documents
-    you create on the service account disk.
+    """Предоставляет вашей личной учётной записи доступ к документам,
+    которые вы создаёте на диске служебной учётной записи.
     """
     service = await wrapper_services.discover('drive', 'v3')
     await wrapper_services.as_service_account(
@@ -35,7 +35,7 @@ async def spreadsheets_update_value(
     closed_projects: list[dict],
     wrapper_services: Aiogoogle
 ) -> None:
-    """Updates data in a report table."""
+    """Обновляет данные в таблице отчета."""
     service = await wrapper_services.discover('sheets', 'v4')
     table_body = [
         [f'Report dated {datetime.now().strftime(FORMAT)}'],

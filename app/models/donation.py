@@ -19,9 +19,9 @@ class Donation(Investment, Base):
     def __repr__(self) -> str:
         """Строковое представление объекта Donation."""
         return (
-            f"< Donation(id={self.id}, user_id={self.user_id},
-            "f"amount={self.full_amount}) >"
-            )
+            f"< Donation(id={self.id}, user_id={self.user_id}, "
+            f"amount={self.full_amount}) >"
+        )
 
 
     __mapper_args__ = {

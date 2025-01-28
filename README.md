@@ -90,5 +90,3 @@ uvicorn app.main:app --reload
 http://127.0.0.1:8000/docs
 http://127.0.0.1:8000/redoc
 ```
-
-  ## [:top: Путь наверх :top:](https://github.com/Tiaki026/QRkot_spreadsheets/blob/master/README.md#qrkot)

@@ -1,6 +1,4 @@
-from datetime import datetime
-
-from sqlalchemy import create_engine, Column, Integer, Boolean, DateTime
+from sqlalchemy import Column, Integer
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -19,9 +17,11 @@ class PreBase:
 
 Base = declarative_base(cls=PreBase)
 
+
 engine = create_async_engine(settings.database_url)
 
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession)
+
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     """Возвращает асинхронную сессию для работы с базой данных."""

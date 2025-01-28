@@ -4,6 +4,7 @@ from sqlalchemy.sql import text  # импортируем функцию text
 from app.models.investment import Investment
 from app.core.db import Base
 
+
 class Donation(Investment, Base):
     """Модель пожертвования."""
 
@@ -16,7 +17,8 @@ class Donation(Investment, Base):
 
     def __repr__(self) -> str:
         """Строковое представление объекта Donation."""
-        return f"<Donation(id={self.id}, user_id={self.user_id}, amount={self.full_amount})>"
+        return f"< Donation(id={self.id}, user_id={self.user_id},
+                            amount={self.full_amount}) >"
 
     __mapper_args__ = {
         'inherit_condition': text("Investment.id == Donation.id")

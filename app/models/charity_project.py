@@ -1,11 +1,12 @@
 from sqlalchemy import Column, String, Text, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
-from app.models.investment import Investment
 from app.core.db import Base
 
+
 class CharityProject(Base):
-    """Модель благотворительного проекта, которая может быть связана с инвестициями."""
+    """Модель благотворительного проекта, которая может быть связана с
+    инвестициями."""
 
     __tablename__ = 'charity_project'
 

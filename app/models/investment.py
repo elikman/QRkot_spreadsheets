@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, Boolean, DateTime
 from datetime import datetime
 from app.core.db import Base
 
+
 class Investment(Base):
     """Родительский класс для денежных объектов."""
 

@@ -21,9 +21,9 @@ logging.basicConfig(level=logging.INFO)
 
 
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):
-    """ 
-    Предоставляет доступ к базе данных через SQLAlchemy. 
-    Используется как зависимость для объекта класса UserManager. 
+    """
+    Предоставляет доступ к базе данных через SQLAlchemy.
+    Используется как зависимость для объекта класса UserManager.
     """ 
     yield SQLAlchemyUserDatabase(session, User)
 
@@ -32,7 +32,7 @@ bearer_transport = BearerTransport(tokenUrl='auth/jwt/login')
 
 
 def get_jwt_strategy() -> JWTStrategy:
-    """Определяет стратегию хранения токена JWT.""" 
+    """Определяет стратегию хранения токена JWT."""
     return JWTStrategy(secret=settings.secret, lifetime_seconds=3600)
 
 
@@ -50,7 +50,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         password: str,
         user: Union[UserCreate, User],
     ) -> None:
-        """Проверяет введённый пароль на соответствие правилам безопасности.""" 
+        """Проверяет введённый пароль на соответствие правилам безопасности."""
         if len(password) < MIN_PASSWORD_LENGTH:
             raise InvalidPasswordException(
                 reason='Пароль должен быть не менее 3 символов.'

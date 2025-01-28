@@ -1,18 +1,8 @@
-from http import HTTPStatus
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.validators import (
-    check_charity_project_closed,
-    check_charity_project_exists,
-    check_new_full_amount,
-    check_project_name_duplicate,
-)
 from app.core.db import get_async_session
 from app.core.user import current_superuser
-from app.crud import charity_crud
-from app.services.money_flow import money_flow
 from app.services.charity_project_service import (
     create_project_service,
     delete_project_service,
@@ -33,7 +23,10 @@ router = APIRouter()
     response_model=CharityProjectDB,
     response_model_exclude_none=True,
     dependencies=[Depends(current_superuser)],
-    summary="Создать благотворительный проект (доступно только суперпользователям)."
+    summary=(
+        "Создать благотворительный проект
+        "(доступно только суперпользователям)."
+        )
 )
 async def create_charity_project(
     project: CharityProjectCreate,
@@ -73,8 +66,9 @@ async def delete_charity_project(
     session: AsyncSession = Depends(get_async_session),
 ):
     """
-    Удаление благотворительного проекта.  
-    Нельзя удалить проект, в который уже внесены средства — его можно только закрыть.  
+    Удаление благотворительного проекта.
+    Нельзя удалить проект, в который уже внесены средства — его можно только 
+    закрыть.
     Доступно только для суперпользователей.
     """
     charity_project = await delete_project_service(project_id, session)
@@ -85,7 +79,8 @@ async def delete_charity_project(
     '/{project_id}',
     response_model=CharityProjectDB,
     dependencies=[Depends(current_superuser)],
-    summary="Обновить благотворительный проект (только для суперпользователей)."
+    summary="Обновить благотворительный проект (
+    "только для суперпользователей)."
 )
 async def update_charity_project(
     project_id: int,
@@ -94,8 +89,10 @@ async def update_charity_project(
 ):
     """
     Обновление благотворительного проекта.  
-    Нельзя изменять закрытые проекты или устанавливать сумму меньше уже вложенных средств.  
+    Нельзя изменять закрытые проекты или устанавливать сумму меньше уже 
+    вложенных средств.
     Доступно только для суперпользователей.
     """
-    charity_project = await update_project_service(project_id, new_data, session)
+    charity_project = await update_project_service(project_id, new_data,
+                                                   session)
     return charity_project

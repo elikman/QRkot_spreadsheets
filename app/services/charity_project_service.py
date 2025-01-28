@@ -14,7 +14,8 @@ from app.services.money_flow import money_flow
 from app.schemas import CharityProjectCreate, CharityProjectUpdate
 
 
-async def create_project_service(project: CharityProjectCreate, session: AsyncSession):
+async def create_project_service(project: CharityProjectCreate, 
+                                 session: AsyncSession):
     """Создает новый благотворительный проект."""
     await check_project_name_duplicate(project.name, session)
     new_project = await charity_crud.create(project, session)
@@ -42,7 +43,9 @@ async def delete_project_service(project_id: int, session: AsyncSession):
     return deleted_project
 
 
-async def update_project_service(project_id: int, new_data: CharityProjectUpdate, session: AsyncSession):
+async def update_project_service(project_id: int,
+                                 new_data: CharityProjectUpdate,
+                                 session: AsyncSession):
     """Обновляет данные благотворительного проекта с проверками."""
     charity_project = await check_charity_project_exists(project_id, session)
     await check_charity_project_closed(project_id, session)
@@ -52,5 +55,6 @@ async def update_project_service(project_id: int, new_data: CharityProjectUpdate
     if new_data.full_amount:
         await check_new_full_amount(new_data.full_amount, charity_project)
 
-    updated_project = await charity_crud.update(charity_project, new_data, session)
+    updated_project = await charity_crud.update(charity_project, new_data
+                                                 session)
     return updated_project

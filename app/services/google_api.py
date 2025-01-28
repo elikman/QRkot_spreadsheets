@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
- 
+
 from aiogoogle import Aiogoogle
- 
+
 from app.core.google_client import FORMAT, PERMISSIONS_BODY, SPREADSHEET_BODY
 
 
@@ -12,13 +12,14 @@ async def create_spreadsheet(wrapper_services: Aiogoogle) -> str:
         service.spreadsheets.create(json=SPREADSHEET_BODY)
     )
     return response['spreadsheetId']
- 
- 
+
+
 async def grant_user_permissions(
     spreadsheet_id: str,
     wrapper_services: Aiogoogle
 ) -> None:
-    """Предоставляет указанному пользователю разрешения на доступ к электронной таблице Google."""
+    """Предоставляет указанному пользователю разрешения на доступ к
+    электронной таблице Google."""
     service = await wrapper_services.discover('drive', 'v3')
     await wrapper_services.as_service_account(
         service.permissions.create(
@@ -27,14 +28,15 @@ async def grant_user_permissions(
             fields='id'
         )
     )
- 
- 
+
+
 async def update_spreadsheet_values(
     spreadsheet_id: str,
     closed_projects: list[dict],
     wrapper_services: Aiogoogle
 ) -> None:
-    """Обновляет содержимое электронной таблицы Google с помощью данных проекта."""
+    """Обновляет содержимое электронной таблицы Google с помощью данных
+    проекта."""
     service = await wrapper_services.discover('sheets', 'v4')
     table_body = [
         [f'Report dated {datetime.now().strftime(FORMAT)}'],

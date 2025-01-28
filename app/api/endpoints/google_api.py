@@ -9,7 +9,11 @@ from app.core.db import get_async_session
 from app.core.google_client import get_service
 from app.core.user import current_superuser
 from app.crud import charity_project_crud
-from app.services.google_api import spreadsheets_create, set_user_permissions, spreadsheets_update_value
+from app.services.google_api import (
+    spreadsheets_create,
+    set_user_permissions,
+    spreadsheets_update_value
+                                     )
 
 router = APIRouter()
 
@@ -25,20 +29,29 @@ async def get_report(
 ) -> Union[str, None]:
     """
     Генерация отчета о закрытых проектах в Google Sheets.
-    
+
     Только для суперпользователей.
     """
-    closed_projects = await charity_project_crud.get_projects_by_completion_rate(session)
-    
+    closed_projects = await (
+        charity_project_crud.get_projects_by_completion_rate(
+            session
+            )
+            )
+
     if not closed_projects:
         return None
-    
+
     spreadsheet_id = await spreadsheets_create(wrapper_service)
 
     await set_user_permissions(spreadsheet_id, wrapper_service)
 
     table_data = [
-        ['Название проекта', 'Время сбора (в днях)', 'Описание', 'Собранная сумма']
+        [
+            'Название проекта',
+            'Время сбора (в днях)',
+            'Описание',
+            'Собранная сумма'
+        ]
     ]
 
     for project in closed_projects:
@@ -49,12 +62,14 @@ async def get_report(
             project.description,
             float(project.fully_invested)
         ])
-    
+
     now_date = (await wrapper_service.as_user).get_now() + timedelta(hours=3)
     formatted_date = now_date.strftime('%Y/%m/%d %H:%M:%S')
 
     spreadsheets_update_value(
-        spreadsheet_id, table_data, wrapper_service, f'Отчет на {formatted_date}'
+        spreadsheet_id, table_data, wrapper_service, f'Отчет на {
+            formatted_date
+            }'
     )
 
     return f'https://docs.google.com/spreadsheets/d/{spreadsheet_id}'

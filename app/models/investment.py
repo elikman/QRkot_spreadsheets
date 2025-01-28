@@ -17,7 +17,7 @@ class Investment(Base):
     """
 
     __tablename__ = 'investment'
-    
+
     __table_args__ = (
         CheckConstraint("full_amount > 0", name="check_full_amount_positive"),
         CheckConstraint(

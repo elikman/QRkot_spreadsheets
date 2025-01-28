@@ -12,7 +12,8 @@ class PreBase:
 
     @declared_attr
     def __tablename__(cls) -> str:
-        """Имя таблицы совпадает с названием класса, написанным в нижнем регистре."""
+        """Имя таблицы совпадает с названием класса, написанным в нижнем
+        регистре."""
         return cls.__name__.lower()
 
     id = Column(Integer, primary_key=True)

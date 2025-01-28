@@ -24,7 +24,7 @@ get_user_db_context = contextlib.asynccontextmanager(get_user_db)
 async def create_first_superuser():
     """
     Создаёт первого суперпользователя в базе данных, если такие отсутствуют.
-    
+
     Используются данные суперпользователя из настроек приложения
     (`settings.SUPERUSER_EMAIL` и `settings.SUPERUSER_PASSWORD`).
     """

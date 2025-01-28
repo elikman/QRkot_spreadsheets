@@ -1,41 +1,28 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Extra, Field, PositiveInt, validator
-
-from app.utils.utils import HUNDRED, NOT_EMPTY_FIELD, ONE
+from pydantic import BaseModel, Extra, Field, PositiveInt
 
 
-class CharityProjectUpdate(BaseModel):
-    """Схема изменения проекта."""
+class CharityProjectCreate(BaseModel):
+    name: str = Field(..., max_length=100)
+    description: str
+    full_amount: PositiveInt
 
-    name: str = Field(None, max_length=HUNDRED)
-    description: str = Field(None)
-    full_amount: PositiveInt = Field(None)
+    class Config:
+        min_anystr_length = 1
+
+
+class CharityProjectUpdate(CharityProjectCreate):
+    name: Optional[str] = Field(None, max_length=100)
+    description: Optional[str]
+    full_amount: Optional[PositiveInt]
 
     class Config:
         extra = Extra.forbid
-        min_anystr_length = ONE
-
-
-class CharityProjectCreate(CharityProjectUpdate):
-    """Схема создания проекта."""
-
-    name: str = Field(..., max_length=HUNDRED)
-    description: str = Field(...)
-    full_amount: PositiveInt = Field(...)
-
-    @validator("name", "description")
-    def validate_field(cls, value: str) -> str:
-        """Проверка поля на пустоту."""
-        if value is None or not value:
-            raise ValueError(NOT_EMPTY_FIELD)
-        return value
 
 
 class CharityProjectDB(CharityProjectCreate):
-    """Схема базового проекта."""
-
     id: int
     invested_amount: int
     fully_invested: bool

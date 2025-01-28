@@ -4,12 +4,10 @@ from pydantic import BaseSettings, EmailStr
 
 
 class Settings(BaseSettings):
-    """Класс настроек приложения."""
-
-    app_title: str = "default title"
-    app_description: str = "default description"
-    database_url: str = "sqlite+aiosqlite:///./fastapi.db"
-    secret: str = "SECRET"
+    title: str = 'Приложение QRKot'
+    description: str = 'Описание приложения QRKot'
+    database_url: str = 'sqlite+aiosqlite:///./fastapi.db'
+    secret: str = 'secret'
     first_superuser_email: Optional[EmailStr] = None
     first_superuser_password: Optional[str] = None
     type: Optional[str] = None
@@ -25,7 +23,7 @@ class Settings(BaseSettings):
     email: Optional[str] = None
 
     class Config:
-        env_file = ".env"
+        env_file = '.env'
 
 
 settings = Settings()

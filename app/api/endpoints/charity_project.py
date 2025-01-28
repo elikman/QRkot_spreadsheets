@@ -1,95 +1,119 @@
-from typing import List
+from datetime import datetime
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.validators import (
+    check_alredy_invested,
+    check_charity_project_exists,
+    check_invested_sum,
+    check_name_dublicate,
+    check_project_closed,
+)
 from app.core.db import get_async_session
 from app.core.user import current_superuser
-from app.crud.charity_project import project_crud
-from app.models import Donation
-from app.schemas.charity_project import (CharityProjectCreate,
-                                         CharityProjectDB,
-                                         CharityProjectUpdate)
-from app.services.investment import invest_donation
-from app.utils.validators import (check_name_duplicate, check_project_amount,
-                                  check_project_exists,
-                                  check_project_fully_invested,
-                                  check_project_invested_amount)
+from app.crud.charity_project import charity_project_crud
+from app.crud.donation import donation_crud
+from app.schemas.charity_project import (
+    CharityProjectCreate,
+    CharityProjectDB,
+    CharityProjectUpdate,
+)
+from app.services.investing import investing_process
 
 router = APIRouter()
 
 
+@router.get(
+    '/',
+    response_model=list[CharityProjectDB],
+    response_model_exclude_none=True,
+)
+async def get_all_charity_projects(
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Возвращает список всех проектов."""
+    all_charity_projects = await charity_project_crud.get_multi(session)
+    return all_charity_projects
+
+
 @router.post(
-    "/",
+    '/',
     response_model=CharityProjectDB,
     response_model_exclude_none=True,
-    dependencies=[Depends(current_superuser)],
+    dependencies=(Depends(current_superuser),),
 )
-async def create_project(
-    charity_project: CharityProjectCreate,
+async def create_new_charity_project(
+    obj_in: CharityProjectCreate,
     session: AsyncSession = Depends(get_async_session),
-) -> CharityProjectDB:
-    """Создание нового проекта.
-    Только для суперпользователя."""
-    await check_name_duplicate(charity_project.name, session)
-    await project_crud.get_project_id_by_name(
-        charity_project.name, session
+):
+    """Только для суперюзеров.
+
+    Создаёт благотворительный проект."""
+    await check_name_dublicate(obj_in.name, session)
+    new_charity_project = await charity_project_crud.create(
+        obj_in, session, commit=False
     )
-    new_project = await project_crud.create(charity_project, session)
-    await invest_donation(new_project, Donation, session)
-    return new_project
-
-
-@router.get(
-    "/",
-    response_model=List[CharityProjectDB],
-    response_model_exclude_none=True,
-)
-async def get_all_projects(
-    session: AsyncSession = Depends(get_async_session),
-) -> List[CharityProjectDB]:
-    """Получение всех проектов."""
-    all_projects = await project_crud.get_multi(session)
-    return all_projects
+    fill_models = await donation_crud.get_not_full_invested(session)
+    sources = investing_process(new_charity_project, fill_models)
+    session.add_all(sources)
+    await session.commit()
+    await session.refresh(new_charity_project)
+    return new_charity_project
 
 
 @router.patch(
-    "/{project_id}",
+    '/{project_id}',
     response_model=CharityProjectDB,
-    dependencies=[Depends(current_superuser)],
+    response_model_exclude_none=True,
+    dependencies=(Depends(current_superuser),),
 )
-async def update_project(
+async def update_charity_project(
     project_id: int,
     obj_in: CharityProjectUpdate,
     session: AsyncSession = Depends(get_async_session),
-) -> CharityProjectDB:
-    """Обновление проекта.
-    Только для суперпользователя."""
-    project = await check_project_exists(project_id, session)
-    check_project_fully_invested(project)
-    if obj_in.name:
-        await check_name_duplicate(obj_in.name, session)
-    if obj_in.full_amount is not None:
-        check_project_amount(project, obj_in.full_amount)
+):
+    """Только для суперюзеров.
 
-    project = await project_crud.update(
-        project, obj_in, session
+    Закрытый проект нельзя редактировать;
+    нельзя установить требуемую сумму меньше уже вложенной.
+    """
+
+    charity_project = await check_charity_project_exists(project_id, session)
+    check_project_closed(charity_project.fully_invested)
+    if obj_in.name:
+        await check_name_dublicate(obj_in.name, session)
+    if obj_in.full_amount:
+        check_invested_sum(charity_project.invested_amount, obj_in.full_amount)
+
+    if obj_in.full_amount == charity_project.invested_amount:
+        charity_project.fully_invested = True
+        charity_project.close_date = datetime.now()
+
+    charity_project = await charity_project_crud.update(
+        charity_project, obj_in, session
     )
-    return project
+
+    return charity_project
 
 
 @router.delete(
-    "/{project_id}",
+    '/{project_id}',
     response_model=CharityProjectDB,
-    dependencies=[Depends(current_superuser)],
+    dependencies=(Depends(current_superuser),),
 )
 async def delete_charity_project(
-    project_id: int,
-    session: AsyncSession = Depends(get_async_session),
-) -> CharityProjectDB:
-    """Удаление проекта.
-    Только для суперпользователя."""
-    project = await check_project_exists(project_id, session)
-    check_project_invested_amount(project)
-    project = await project_crud.remove(project, session)
-    return project
+    project_id: int, session: AsyncSession = Depends(get_async_session)
+):
+    """Только для суперюзеров.
+
+    Удаляет проект.
+    Нельзя удалить проект, в который уже были инвестированы средства,
+    его можно только закрыть.
+    """
+    charity_project = await check_charity_project_exists(project_id, session)
+    check_alredy_invested(charity_project.invested_amount)
+    charity_project = await charity_project_crud.remove(
+        charity_project, session
+    )
+    return charity_project

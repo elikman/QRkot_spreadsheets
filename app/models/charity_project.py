@@ -1,18 +1,15 @@
 from sqlalchemy import Column, String, Text
 
-from app.utils.utils import HUNDRED
-
-from .base import AbstractModel
+from app.models.base import BaseCharityDonationModel
 
 
-class CharityProject(AbstractModel):
-    """Модель проекта."""
-
-    name = Column(String(HUNDRED), unique=True, nullable=False)
+class CharityProject(BaseCharityDonationModel):
+    name = Column(String(100), unique=True, nullable=False)
     description = Column(Text, nullable=False)
 
     def __repr__(self):
         return (
-            super().__repr__()[:-1] +
-            f", name={self.name}, description={self.description[:50]}...)>"
+            f'Имя проекта: {self.name}, '
+            f'Описание проекта: {self.description}, '
+            f'{super().__repr__()}'
         )

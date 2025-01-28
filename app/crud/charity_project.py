@@ -1,10 +1,8 @@
-from datetime import timedelta
-from typing import Optional, Union
+from typing import Optional
 
-from sqlalchemy import func, select, true
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import FUNDRAISING_DURATION
 from app.crud.base import CRUDBase
 from app.models import CharityProject
 
@@ -12,44 +10,33 @@ from app.models import CharityProject
 class CRUDCharityProject(CRUDBase):
 
     async def get_project_id_by_name(
-        self,
-        project_name: str,
-        session: AsyncSession
+            self,
+            project_name: str,
+            session: AsyncSession,
+            project_id: Optional[int] = None,
     ) -> Optional[int]:
+
         db_project_id = await session.execute(
             select(CharityProject.id).where(
-                project_name == CharityProject.name
+                CharityProject.name == project_name
+            ).where(
+                CharityProject.id != project_id
             )
         )
-        return db_project_id.scalars().first()
+        db_project_id = db_project_id.scalars().first()
+        return db_project_id
 
     async def get_projects_by_completion_rate(
-            self, session: AsyncSession
-    ) -> list[dict[str, Union[str, timedelta]]]:
-        """
-        Provides closed projects sorted by fundraising duration.
+            self,
+            session: AsyncSession
+    ) -> list[CharityProject]:
+        db_objs = await session.execute(
+            select(self.model).where(
+                self.model.fully_invested.is_(True)
+            ).order_by(self.model.close_date - self.model.create_date)
 
-        Columns:
-
-        Project name - fundraising duration - project description
-        """
-        datetime_difference_in_days = (
-            func.julianday(
-                CharityProject.close_date
-            ) - func.julianday(
-                CharityProject.create_date
-            )).label(FUNDRAISING_DURATION)
-        closed_projects = await session.execute(
-            select(
-                CharityProject.name,
-                datetime_difference_in_days,
-                CharityProject.description
-            ).where(
-                CharityProject.fully_invested == true()
-            ).order_by(FUNDRAISING_DURATION)
         )
-        closed_projects = closed_projects.all()
-        return closed_projects
+        return db_objs.scalars().all()
 
 
-charity_crud = CRUDCharityProject(CharityProject)
+charity_project_crud = CRUDCharityProject(CharityProject)

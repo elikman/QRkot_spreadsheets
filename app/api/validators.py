@@ -137,9 +137,8 @@ async def check_investment_amount(
         raise HTTPException(
             status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
             detail=(
-                "Сумма вложений не может быть уменьшена! Текущая вложенная"
-                "сумма: "
-                f"{project.invested_amount}. Укажите сумму не меньше текущих 
-                вложений."
+                "Сумма вложений не может быть уменьшена! Текущая вложенная "
+                f"сумма: {project.invested_amount}. Укажите сумму не меньше "
+                "текущих вложений."
             )
         )

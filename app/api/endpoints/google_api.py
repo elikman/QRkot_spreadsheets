@@ -35,8 +35,8 @@ async def get_report(
     closed_projects = await (
         charity_project_crud.get_projects_by_completion_rate(
             session
-            )
-            )
+        )
+    )
 
     if not closed_projects:
         return None
@@ -67,9 +67,10 @@ async def get_report(
     formatted_date = now_date.strftime('%Y/%m/%d %H:%M:%S')
 
     spreadsheets_update_value(
-        spreadsheet_id, table_data, wrapper_service, f'Отчет на {
-            formatted_date
-            }'
+        spreadsheet_id,
+        table_data,
+        wrapper_service,
+        f'Отчет на {formatted_date}'
     )
 
     return f'https://docs.google.com/spreadsheets/d/{spreadsheet_id}'

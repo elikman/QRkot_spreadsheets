@@ -24,9 +24,9 @@ router = APIRouter()
     response_model_exclude_none=True,
     dependencies=[Depends(current_superuser)],
     summary=(
-        "Создать благотворительный проект
+        "Создать благотворительный проект "
         "(доступно только суперпользователям)."
-        )
+    )
 )
 async def create_charity_project(
     project: CharityProjectCreate,

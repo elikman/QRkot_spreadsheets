@@ -55,6 +55,6 @@ async def update_project_service(project_id: int,
     if new_data.full_amount:
         await check_new_full_amount(new_data.full_amount, charity_project)
 
-    updated_project = await charity_crud.update(charity_project, new_data
+    updated_project = await charity_crud.update(charity_project, new_data,
                                                  session)
     return updated_project

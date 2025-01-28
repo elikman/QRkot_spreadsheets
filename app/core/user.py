@@ -3,10 +3,15 @@ from typing import Optional, Union
 
 from fastapi import Depends, Request
 from fastapi_users import (
-    BaseUserManager, FastAPIUsers, IntegerIDMixin, InvalidPasswordException
+    BaseUserManager,
+    FastAPIUsers,
+    IntegerIDMixin,
+    InvalidPasswordException,
 )
 from fastapi_users.authentication import (
-    AuthenticationBackend, BearerTransport, JWTStrategy
+    AuthenticationBackend,
+    BearerTransport,
+    JWTStrategy,
 )
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,11 +29,11 @@ async def get_user_db(session: AsyncSession = Depends(get_async_session)):
     """
     Предоставляет доступ к базе данных через SQLAlchemy.
     Используется как зависимость для объекта класса UserManager.
-    """ 
+    """
     yield SQLAlchemyUserDatabase(session, User)
 
 
-bearer_transport = BearerTransport(tokenUrl='auth/jwt/login')
+bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 
 
 def get_jwt_strategy() -> JWTStrategy:
@@ -37,7 +42,7 @@ def get_jwt_strategy() -> JWTStrategy:
 
 
 auth_backend = AuthenticationBackend(
-    name='jwt',
+    name="jwt",
     transport=bearer_transport,
     get_strategy=get_jwt_strategy,
 )
@@ -53,18 +58,18 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         """Проверяет введённый пароль на соответствие правилам безопасности."""
         if len(password) < MIN_PASSWORD_LENGTH:
             raise InvalidPasswordException(
-                reason='Пароль должен быть не менее 3 символов.'
+                reason="Пароль должен быть не менее 3 символов."
             )
         if user.email in password:
             raise InvalidPasswordException(
-                reason='Пароль не должен содержать адрес электронной почты.'
+                reason="Пароль не должен содержать адрес электронной почты."
             )
 
     async def on_after_register(
         self, user: User, request: Optional[Request] = None
     ) -> None:
         """После успешной регистрации пользователя."""
-        logging.info(f'Пользователь {user.email} успешно зарегистрирован.')
+        logging.info(f"Пользователь {user.email} успешно зарегистрирован.")
 
 
 async def get_user_manager(user_db=Depends(get_user_db)):

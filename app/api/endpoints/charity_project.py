@@ -1,114 +1,95 @@
-from http import HTTPStatus
+from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.validators import (check_before_delete,
-                                check_charity_project_exist,
-                                check_name_duplicate,
-                                check_project_close)
 from app.core.db import get_async_session
 from app.core.user import current_superuser
-from app.crud.charity_project import charity_project_crud
-from app.crud.donation import donation_crud
-from app.schemas.charity_project import (CharityProjectBase,
-                                         CharityProjectGet,
-                                         CharityProjectPatch)
-from app.services import find_charity
-
+from app.crud.charity_project import project_crud
+from app.models import Donation
+from app.schemas.charity_project import (CharityProjectCreate,
+                                         CharityProjectDB,
+                                         CharityProjectUpdate)
+from app.services.investment import invest_donation
+from app.utils.validators import (check_name_duplicate, check_project_amount,
+                                  check_project_exists,
+                                  check_project_fully_invested,
+                                  check_project_invested_amount)
 
 router = APIRouter()
 
 
-@router.get(
-    '/',
-    response_model=list[CharityProjectGet],
-)
-async def get_all_projects(
-        session: AsyncSession = Depends(get_async_session),
-):
-    """Возвращает список всех проектов."""
-    all_projects = await charity_project_crud.get_multi(session)
-    return all_projects
-
-
 @router.post(
-    '/',
-    response_model=CharityProjectGet,
+    "/",
+    response_model=CharityProjectDB,
+    response_model_exclude_none=True,
     dependencies=[Depends(current_superuser)],
 )
-async def create_charity_projects(
-        charity_project: CharityProjectBase,
-        session: AsyncSession = Depends(get_async_session),
-):
-    """Только для суперюзеров.
-    Создаёт благотворительный проект.
-    """
+async def create_project(
+    charity_project: CharityProjectCreate,
+    session: AsyncSession = Depends(get_async_session),
+) -> CharityProjectDB:
+    """Создание нового проекта.
+    Только для суперпользователя."""
     await check_name_duplicate(charity_project.name, session)
-    new_project = await charity_project_crud.create(charity_project, session)
-    session.add_all(
-        find_charity(
-            new_project,
-            await donation_crud.get_all_not_fully_invested(session)
-        )
+    await project_crud.get_project_id_by_name(
+        charity_project.name, session
     )
-    await session.commit()
-    await session.refresh(new_project)
+    new_project = await project_crud.create(charity_project, session)
+    await invest_donation(new_project, Donation, session)
     return new_project
 
 
-@router.delete(
-    '/{project_id}',
-    response_model=CharityProjectGet,
-    dependencies=[Depends(current_superuser)],
+@router.get(
+    "/",
+    response_model=List[CharityProjectDB],
+    response_model_exclude_none=True,
 )
-async def delete_charity_project(
-        project_id: int,
-        session: AsyncSession = Depends(get_async_session),
-):
-    """Только для суперюзеров.
-    Удаляет проект. Нельзя удалить проект,
-    в который уже были инвестированы средства, его можно только закрыть.
-    """
-    charity_project = await check_charity_project_exist(project_id, session)
-    check_before_delete(charity_project)
-    check_project_close(charity_project)
-    charity_project = await charity_project_crud.remove(
-        charity_project,
-        session
-    )
-    return charity_project
+async def get_all_projects(
+    session: AsyncSession = Depends(get_async_session),
+) -> List[CharityProjectDB]:
+    """Получение всех проектов."""
+    all_projects = await project_crud.get_multi(session)
+    return all_projects
 
 
 @router.patch(
-    '/{project_id}',
-    response_model=CharityProjectGet,
+    "/{project_id}",
+    response_model=CharityProjectDB,
     dependencies=[Depends(current_superuser)],
 )
-async def partially_update_meeting_room(
-        project_id: int,
-        obj_in: CharityProjectPatch,
-        session: AsyncSession = Depends(get_async_session),
-):
-    """Только для суперюзеров.
-    Закрытый проект нельзя редактировать;
-    нельзя установить требуемую сумму меньше уже вложенной.
-    """
-    charity_project = await check_charity_project_exist(
-        project_id, session
-    )
-
-    await check_name_duplicate(obj_in.name, session, project_id)
-    check_project_close(charity_project)
-
+async def update_project(
+    project_id: int,
+    obj_in: CharityProjectUpdate,
+    session: AsyncSession = Depends(get_async_session),
+) -> CharityProjectDB:
+    """Обновление проекта.
+    Только для суперпользователя."""
+    project = await check_project_exists(project_id, session)
+    check_project_fully_invested(project)
+    if obj_in.name:
+        await check_name_duplicate(obj_in.name, session)
     if obj_in.full_amount is not None:
-        if charity_project.invested_amount > obj_in.full_amount:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail='нельзя установить требуемую сумму меньше уже вложенной'
-            )
+        check_project_amount(project, obj_in.full_amount)
 
-    charity_project = await charity_project_crud.update(
-        charity_project, obj_in, session
+    project = await project_crud.update(
+        project, obj_in, session
     )
-    return charity_project
+    return project
+
+
+@router.delete(
+    "/{project_id}",
+    response_model=CharityProjectDB,
+    dependencies=[Depends(current_superuser)],
+)
+async def delete_charity_project(
+    project_id: int,
+    session: AsyncSession = Depends(get_async_session),
+) -> CharityProjectDB:
+    """Удаление проекта.
+    Только для суперпользователя."""
+    project = await check_project_exists(project_id, session)
+    check_project_invested_amount(project)
+    project = await project_crud.remove(project, session)
+    return project

@@ -6,6 +6,7 @@ from app.core.config import settings
 
 
 class PreBase:
+    """Класс для предварительной настройки базы данных."""
 
     @declared_attr
     def __tablename__(cls):
@@ -22,5 +23,7 @@ AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession)
 
 
 async def get_async_session():
+
     async with AsyncSessionLocal() as async_session:
+
         yield async_session

@@ -1,50 +1,46 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, PositiveInt
+from pydantic import BaseModel, Extra, Field, PositiveInt, validator
+
+from app.utils.utils import HUNDRED, NOT_EMPTY_FIELD, ONE
 
 
-class CharityProjectBase(BaseModel):
-    name: str = Field(
-        ...,
-        min_length=1,
-        max_length=100,
-        description='не должно быть пустым'
-    )
-    description: str = Field(
-        ...,
-        min_length=1,
-        description='не должно быть пустым'
-    )
-    full_amount: PositiveInt = Field(
-        ...,
-        description='сумма должна быть больше ноля'
-    )
-    invested_amount: Optional[int] = 0
+class CharityProjectUpdate(BaseModel):
+    """Схема изменения проекта."""
+
+    name: str = Field(None, max_length=HUNDRED)
+    description: str = Field(None)
+    full_amount: PositiveInt = Field(None)
 
     class Config:
-        orm_mode = True
-        schema_extra = {
-            'example': {
-                'name': 'string',
-                'description': 'string',
-                'full_amount': 0
-            }
-        }
+        extra = Extra.forbid
+        min_anystr_length = ONE
 
 
-class CharityProjectPatch(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=100)
-    description: Optional[str] = Field(None, min_length=1)
-    full_amount: Optional[PositiveInt] = None
+class CharityProjectCreate(CharityProjectUpdate):
+    """Схема создания проекта."""
 
-    class Config:
-        extra = 'forbid'
+    name: str = Field(..., max_length=HUNDRED)
+    description: str = Field(...)
+    full_amount: PositiveInt = Field(...)
+
+    @validator("name", "description")
+    def validate_field(cls, value: str) -> str:
+        """Проверка поля на пустоту."""
+        if value is None or not value:
+            raise ValueError(NOT_EMPTY_FIELD)
+        return value
 
 
-class CharityProjectGet(CharityProjectBase):
+class CharityProjectDB(CharityProjectCreate):
+    """Схема базового проекта."""
+
     id: int
     invested_amount: int
     fully_invested: bool
     create_date: datetime
-    close_date: Optional[datetime] = None
+    close_date: Optional[datetime]
+
+    class Config:
+        orm_mode = True

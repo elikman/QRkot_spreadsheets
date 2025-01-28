@@ -1,44 +1,34 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, PositiveInt
+from pydantic import BaseModel, Extra, PositiveInt
 
 
-class DonationBase(BaseModel):
+class DonationCreate(BaseModel):
+    """Схема создания пожертвования."""
+
+    full_amount: PositiveInt
+    comment: Optional[str]
+
+    class Config:
+        extra = Extra.forbid
+
+
+class DonationUser(DonationCreate):
+    """Схема отображения пожертвования."""
 
     id: int
-    full_amount: PositiveInt = Field(
-        ...,
-        description='сумма должна быть больше ноля'
-    )
-    comment: Optional[str] = None
     create_date: datetime
 
     class Config:
         orm_mode = True
 
 
-class DonationGet(DonationBase):
+class DonationDB(DonationUser):
+    """Схема базового пожертвования."""
 
+    id: int
     user_id: int
     invested_amount: int
     fully_invested: bool
-    close_date: Optional[datetime] = None
-
-
-class DonationPost(BaseModel):
-    full_amount: PositiveInt = Field(
-        ...,
-        description='сумма должна быть больше ноля'
-    )
-    comment: Optional[str] = None
-    invested_amount: Optional[int] = 0
-
-    class Config:
-
-        schema_extra = {
-            'example': {
-                'full_amount': 0,
-                'comment': 'string'
-            }
-        }
+    clode_date: Optional[datetime]

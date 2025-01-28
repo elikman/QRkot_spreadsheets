@@ -1,0 +1,20 @@
+SECRET=yoursecretkey
+APP_TITLE=your title
+APP_DESCRIPTION=your description
+DATABASE_URL=sqlite+aiosqlite:///./fastapi.db
+FIRST_SUPERUSER_EMAIL=root@admin.ru
+FIRST_SUPERUSER_PASSWORD=root
+
+[all data from file secret-tempest.json]
+
+TYPE=service_account
+PROJECT_ID=your project id
+PRIVATE_KEY_ID=your private key id
+PRIVATE_KEY=your private key
+CLIENT_EMAIL=your client email
+CLIENT_ID=your client id
+AUTH_URI=your auth
+TOKEN_URI=your token URI
+AUTH_PROVIDER_X509_CERT_URL=your auth provider
+CLIENT_X509_CERT_URL=your client certificate
+EMAIL=test@example.com

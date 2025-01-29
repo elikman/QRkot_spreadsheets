@@ -9,7 +9,7 @@ class CharityProject(BaseCharityDonationModel):
 
     def __repr__(self):
         return (
-            f'Имя проекта: {self.name}, '
-            f'Описание проекта: {self.description}, '
-            f'{super().__repr__()}'
+            f"Имя проекта: {self.name}, "
+            f"Описание проекта: {self.description}, "
+            f"{super().__repr__()}"
         )

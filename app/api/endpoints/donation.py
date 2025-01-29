@@ -7,16 +7,17 @@ from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
 from app.models import User
 from app.schemas.donation import AllDotationsDB, DonationCreate, DonationDB
-from app.services.investing import investing_process
+from app.services.investing import distribute_investments
 
 router = APIRouter()
 
 
 @router.get(
-    '/',
+    "/",
     response_model=list[AllDotationsDB],
     response_model_exclude_none=True,
     dependencies=(Depends(current_superuser),),
+    summary="Возвращает список всех пожертвований для суперюзеров",
 )
 async def get_all_donations(
     session: AsyncSession = Depends(get_async_session),
@@ -28,25 +29,27 @@ async def get_all_donations(
     return all_donations
 
 
-@router.post('/', response_model=DonationDB)
+@router.post("/", response_model=DonationDB, summary="Сделать пожертвование")
 async def create_new_donation(
     obj_in: DonationCreate,
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_user),
 ):
     """Сделать пожертвование."""
-    new_donation = await donation_crud.create(
-        obj_in, session, user, commit=False
-    )
+    new_donation = await donation_crud.create(obj_in, session, user, commit=False)
     fill_models = await charity_project_crud.get_not_full_invested(session)
-    sources = investing_process(new_donation, fill_models)
+    sources = distribute_investments(new_donation, fill_models)
     session.add_all(sources)
     await session.commit()
     await session.refresh(new_donation)
     return new_donation
 
 
-@router.get('/my', response_model=list[DonationDB])
+@router.get(
+    "/my",
+    response_model=list[DonationDB],
+    summary="Вернуть список пожертвований текущего пользователя",
+)
 async def get_my_donations(
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_user),

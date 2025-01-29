@@ -1,25 +1,19 @@
 from datetime import datetime
-
 from app.models.base import BaseCharityDonationModel
 
 
-def investing_process(
+def distribute_investments(
     target: BaseCharityDonationModel,
     sources: list[BaseCharityDonationModel],
 ) -> list[BaseCharityDonationModel]:
+    """Распределяет средства между проектами и обновляет их статусы.
 
-    """
-    Перераспределяет средства между проектами, обновляя их статус и сумму
-    вложений.
+    Args:
+        target (BaseCharityDonationModel): Проект, на который направляются средства.
+        sources (list[BaseCharityDonationModel]): Список проектов, из которых берутся средства.
 
-    Параметры:
-        target (BaseCharityDonationModel): Проект, на который направляются
-        средства.
-        sources (list[BaseCharityDonationModel]): Список проектов, из которых
-        берутся средства.
-
-    Возвращает:
-        list[BaseCharityDonationModel]: Обновленный список исходных проектов.
+    Returns:
+        list[BaseCharityDonationModel]: Обновлённый список исходных проектов.
     """
 
     modified_sources = []

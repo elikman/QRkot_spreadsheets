@@ -12,9 +12,7 @@ class CRUDCharityProject(CRUDBase):
         self, charity_project_name: str, session: AsyncSession
     ) -> Optional[int]:
         db_charity_project_id = await session.execute(
-            select(CharityProject.id).where(
-                CharityProject.name == charity_project_name
-            )
+            select(CharityProject.id).where(CharityProject.name == charity_project_name)
         )
         return db_charity_project_id.scalars().first()
 
@@ -22,9 +20,9 @@ class CRUDCharityProject(CRUDBase):
         self,
         session: AsyncSession,
     ) -> list[CharityProject]:
-        completion_rate = extract(
-            'epoch', CharityProject.close_date
-        ) - extract('epoch', CharityProject.create_date)
+        completion_rate = extract("epoch", CharityProject.close_date) - extract(
+            "epoch", CharityProject.create_date
+        )
         projects = await session.execute(
             select(CharityProject)
             .where(CharityProject.fully_invested)
@@ -34,9 +32,7 @@ class CRUDCharityProject(CRUDBase):
         return projects.scalars().all()
 
     async def get_not_full_invested(self, session: AsyncSession):
-        """
-        Возвращает все проекты, которые не полностью инвестированы.
-        """
+        """Возвращает все проекты, которые не полностью инвестированы."""
         not_full_invested_projects = await session.execute(
             select(CharityProject)
             .where(CharityProject.fully_invested == 0)

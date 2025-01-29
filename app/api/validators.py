@@ -6,8 +6,8 @@ from app.crud.charity_project import charity_project_crud
 
 async def check_name_dublicate(project_name: str, session: AsyncSession):
     """
-    Проверяет, существует ли проект с таким же именем в базе данных.
-    Если проект с таким именем уже существует, вызывает исключение
+    Проверяет, существует ли проект с указанным названием.
+    Если проект с таким именем уже существует, вызывается исключение
     HTTPException с ошибкой 400.
 
     :param project_name: Название проекта.
@@ -19,14 +19,14 @@ async def check_name_dublicate(project_name: str, session: AsyncSession):
     if project_id:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail='Проект с таким именем уже существует!',
+            detail="Проект с таким именем уже существует!",
         )
 
 
 async def check_charity_project_exists(project_id: int, session: AsyncSession):
     """
-    Проверяет существование благотворительного проекта с заданным ID.
-    Если проект не найден, вызывает исключение HTTPException с ошибкой 404.
+    Проверяет, существует ли благотворительный проект с заданным ID.
+    Если проект не найден, вызывается исключение HTTPException с ошибкой 404.
 
     :param project_id: ID проекта для проверки.
     :param session: Асинхронная сессия для работы с БД.
@@ -36,16 +36,16 @@ async def check_charity_project_exists(project_id: int, session: AsyncSession):
     if not charity_project:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail='Такого проекта не существует!',
+            detail="Такого проекта не существует!",
         )
     return charity_project
 
 
 def check_invested_sum(invested_amount: int, new_full_amount: int):
     """
-    Проверяет, чтобы новая сумма full_amount не была меньше уже вложенной
-    суммы.
-    Если условие нарушено, вызывает исключение HTTPException с ошибкой 400.
+    Проверяет, что новая сумма не меньше уже вложенной.
+    Если новая сумма меньше уже вложенной, вызывает исключение HTTPException
+    с ошибкой 400.
 
     :param invested_amount: Уже вложенная сумма.
     :param new_full_amount: Новая полная сумма для проекта.
@@ -54,35 +54,34 @@ def check_invested_sum(invested_amount: int, new_full_amount: int):
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail=(
-                'Нельзя установить значение full_amount '
-                'меньше уже вложенной суммы.'
+                "Нельзя установить значение full_amount " "меньше уже вложенной суммы."
             ),
         )
 
 
 def check_project_closed(fully_invested: bool):
     """
-    Проверяет, не закрыт ли проект. Если проект закрыт, вызывает исключение
-    HTTPException с ошибкой 400.
+    Проверяет, не закрыт ли проект.
+    Если проект закрыт, вызывает исключение HTTPException с ошибкой 400.
 
     :param fully_invested: Флаг, указывающий, закрыт ли проект.
     """
     if fully_invested:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail='Закрытый проект нельзя редактировать!',
+            detail="Закрытый проект нельзя редактировать!",
         )
 
 
 def check_alredy_invested(invested: bool):
     """
-    Проверяет, были ли внесены средства в проект. Если средства уже внесены,
-    вызывает исключение HTTPException с ошибкой 400.
+    Проверяет, были ли внесены средства в проект.
+    Если средства уже внесены, вызывает исключение HTTPException с ошибкой 400.
 
     :param invested: Сумма вложенных средств.
     """
     if invested > 0:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail='В проект были внесены средства, не подлежит удалению!',
+            detail="В проект были внесены средства, не подлежит удалению!",
         )

@@ -21,8 +21,11 @@ class CRUDDonation(CRUDBase):
         Возвращает все донаты, которые не были полностью инвестированы.
         """
         not_full_invested_donations = await session.execute(
-            select(Donation).where(Donation.fully_invested == 0).order_by(Donation.create_date)
+            select(Donation)
+            .where(Donation.fully_invested == 0)
+            .order_by(Donation.create_date)
         )
+
         return not_full_invested_donations.scalars().all()
 
 

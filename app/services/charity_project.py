@@ -3,7 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
-from app.schemas.charity_project import CharityProjectCreate, CharityProjectUpdate
+from app.schemas.charity_project import (
+    CharityProjectCreate, CharityProjectUpdate
+)
 from app.services.investing import distribute_investments
 from app.api.validators import (
     check_name_dublicate,
@@ -62,7 +64,8 @@ async def update_charity_project_service(
     return charity_project
 
 
-async def delete_charity_project_service(project_id: int, session: AsyncSession):
+async def delete_charity_project_service(
+        project_id: int, session: AsyncSession):
     """Удаляет благотворительный проект (если не было инвестиций)."""
 
     charity_project = await check_charity_project_exists(project_id, session)

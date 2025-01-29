@@ -9,8 +9,10 @@ def distribute_investments(
     """Распределяет средства между проектами и обновляет их статусы.
 
     Args:
-        target (BaseCharityDonationModel): Проект, на который направляются средства.
-        sources (list[BaseCharityDonationModel]): Список проектов, из которых берутся средства.
+        target (BaseCharityDonationModel): Проект, на который направляются
+        средства.
+        sources (list[BaseCharityDonationModel]): Список проектов, из которых
+        берутся средства.
 
     Returns:
         list[BaseCharityDonationModel]: Обновлённый список исходных проектов.

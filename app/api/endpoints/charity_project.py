@@ -73,7 +73,7 @@ async def update_charity_project(
     obj_in: CharityProjectUpdate,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Только для суперюзеров. 
+    """Только для суперюзеров.
     Закрытый проект нельзя редактировать; нельзя установить требуемую сумму
     меньше уже вложенной."""
 
@@ -103,7 +103,7 @@ async def update_charity_project(
 async def delete_charity_project(
     project_id: int, session: AsyncSession = Depends(get_async_session)
 ):
-    """Только для суперюзеров. 
+    """Только для суперюзеров.
     Удаляет проект. Нельзя удалить проект, в который уже были инвестированы
     средства, его можно только закрыть."""
     charity_project = await check_charity_project_exists(project_id, session)

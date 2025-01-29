@@ -7,7 +7,8 @@ from app.crud.charity_project import charity_project_crud
 async def check_name_dublicate(project_name: str, session: AsyncSession):
     """
     Проверяет, существует ли проект с таким же именем в базе данных.
-    Если проект с таким именем уже существует, вызывает исключение HTTPException с ошибкой 400.
+    Если проект с таким именем уже существует, вызывает исключение
+    HTTPException с ошибкой 400.
 
     :param project_name: Название проекта.
     :param session: Асинхронная сессия для работы с БД.
@@ -42,7 +43,8 @@ async def check_charity_project_exists(project_id: int, session: AsyncSession):
 
 def check_invested_sum(invested_amount: int, new_full_amount: int):
     """
-    Проверяет, чтобы новая сумма full_amount не была меньше уже вложенной суммы.
+    Проверяет, чтобы новая сумма full_amount не была меньше уже вложенной
+    суммы.
     Если условие нарушено, вызывает исключение HTTPException с ошибкой 400.
 
     :param invested_amount: Уже вложенная сумма.
@@ -60,7 +62,8 @@ def check_invested_sum(invested_amount: int, new_full_amount: int):
 
 def check_project_closed(fully_invested: bool):
     """
-    Проверяет, не закрыт ли проект. Если проект закрыт, вызывает исключение HTTPException с ошибкой 400.
+    Проверяет, не закрыт ли проект. Если проект закрыт, вызывает исключение
+    HTTPException с ошибкой 400.
 
     :param fully_invested: Флаг, указывающий, закрыт ли проект.
     """
@@ -73,7 +76,8 @@ def check_project_closed(fully_invested: bool):
 
 def check_alredy_invested(invested: bool):
     """
-    Проверяет, были ли внесены средства в проект. Если средства уже внесены, вызывает исключение HTTPException с ошибкой 400.
+    Проверяет, были ли внесены средства в проект. Если средства уже внесены,
+    вызывает исключение HTTPException с ошибкой 400.
 
     :param invested: Сумма вложенных средств.
     """

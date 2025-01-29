@@ -7,14 +7,17 @@ def investing_process(
     target: BaseCharityDonationModel,
     sources: list[BaseCharityDonationModel],
 ) -> list[BaseCharityDonationModel]:
-    
+
     """
-    Перераспределяет средства между проектами, обновляя их статус и сумму вложений.
-    
+    Перераспределяет средства между проектами, обновляя их статус и сумму
+    вложений.
+
     Параметры:
-        target (BaseCharityDonationModel): Проект, на который направляются средства.
-        sources (list[BaseCharityDonationModel]): Список проектов, из которых берутся средства.
-    
+        target (BaseCharityDonationModel): Проект, на который направляются
+        средства.
+        sources (list[BaseCharityDonationModel]): Список проектов, из которых
+        берутся средства.
+
     Возвращает:
         list[BaseCharityDonationModel]: Обновленный список исходных проектов.
     """

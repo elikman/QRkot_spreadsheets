@@ -25,7 +25,7 @@ router = APIRouter()
     summary=(
         "Создание отчёта в Google таблице с закрытыми проектами,"
         "отсортированными по времени сбора средств",
-        )
+    )
 )
 async def get_report(
     session: AsyncSession = Depends(get_async_session),

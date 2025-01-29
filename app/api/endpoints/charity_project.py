@@ -28,13 +28,13 @@ router = APIRouter()
     '/',
     response_model=list[CharityProjectDB],
     response_model_exclude_none=True,
+    summary="Получить список всех благотворительных проектов"
 )
 async def get_all_charity_projects(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Возвращает список всех проектов."""
-    all_charity_projects = await charity_project_crud.get_multi(session)
-    return all_charity_projects
+    return await charity_project_crud.get_multi(session)
 
 
 @router.post(
@@ -42,14 +42,13 @@ async def get_all_charity_projects(
     response_model=CharityProjectDB,
     response_model_exclude_none=True,
     dependencies=(Depends(current_superuser),),
+    summary="Создать новый благотворительный проект"
 )
 async def create_new_charity_project(
     obj_in: CharityProjectCreate,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Только для суперюзеров.
-
-    Создаёт благотворительный проект."""
+    """Только для суперюзеров. Создаёт благотворительный проект."""
     await check_name_dublicate(obj_in.name, session)
     new_charity_project = await charity_project_crud.create(
         obj_in, session, commit=False
@@ -67,17 +66,16 @@ async def create_new_charity_project(
     response_model=CharityProjectDB,
     response_model_exclude_none=True,
     dependencies=(Depends(current_superuser),),
+    summary="Обновить данные благотворительного проекта"
 )
 async def update_charity_project(
     project_id: int,
     obj_in: CharityProjectUpdate,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Только для суперюзеров.
-
-    Закрытый проект нельзя редактировать;
-    нельзя установить требуемую сумму меньше уже вложенной.
-    """
+    """Только для суперюзеров. 
+    Закрытый проект нельзя редактировать; нельзя установить требуемую сумму
+    меньше уже вложенной."""
 
     charity_project = await check_charity_project_exists(project_id, session)
     check_project_closed(charity_project.fully_invested)
@@ -93,7 +91,6 @@ async def update_charity_project(
     charity_project = await charity_project_crud.update(
         charity_project, obj_in, session
     )
-
     return charity_project
 
 
@@ -101,19 +98,14 @@ async def update_charity_project(
     '/{project_id}',
     response_model=CharityProjectDB,
     dependencies=(Depends(current_superuser),),
+    summary="Удалить благотворительный проект"
 )
 async def delete_charity_project(
     project_id: int, session: AsyncSession = Depends(get_async_session)
 ):
-    """Только для суперюзеров.
-
-    Удаляет проект.
-    Нельзя удалить проект, в который уже были инвестированы средства,
-    его можно только закрыть.
-    """
+    """Только для суперюзеров. 
+    Удаляет проект. Нельзя удалить проект, в который уже были инвестированы
+    средства, его можно только закрыть."""
     charity_project = await check_charity_project_exists(project_id, session)
     check_alredy_invested(charity_project.invested_amount)
-    charity_project = await charity_project_crud.remove(
-        charity_project, session
-    )
-    return charity_project
+    return await charity_project_crud.remove(charity_project, session)

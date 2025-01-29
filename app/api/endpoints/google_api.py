@@ -10,9 +10,9 @@ from app.core.user import current_superuser
 from app.crud.charity_project import charity_project_crud
 from app.schemas.charity_project import CharityProjectDB
 from app.services.google import (
-    set_user_permissions,
-    spreadsheets_create,
-    spreadsheets_update_value,
+    grant_user_permissions,
+    create_spreadsheet,
+    update_spreadsheet_values,
 )
 
 router = APIRouter()
@@ -36,12 +36,12 @@ async def get_report(
     projects = await charity_project_crud.get_projects_by_completion_rate(
         session
     )
-    spreadsheet_id, spreadsheet_url = await spreadsheets_create(
+    spreadsheet_id, spreadsheet_url = await create_spreadsheet(
         wrapper_services
     )
-    await set_user_permissions(spreadsheet_id, wrapper_services)
+    await grant_user_permissions(spreadsheet_id, wrapper_services)
     try:
-        await spreadsheets_update_value(
+        await update_spreadsheet_values(
             spreadsheet_id,
             projects,
             wrapper_services,

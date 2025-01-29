@@ -14,5 +14,14 @@ class CRUDDonation(CRUDBase):
         )
         return donations.scalars().all()
 
+    async def get_not_full_invested(self, session: AsyncSession) -> list[Donation]:
+        """
+        Возвращает все донаты, которые не были полностью инвестированы.
+        """
+        not_full_invested_donations = await session.execute(
+            select(Donation).where(Donation.fully_invested == 0).order_by(Donation.create_date)
+        )
+        return not_full_invested_donations.scalars().all()
+
 
 donation_crud = CRUDDonation(Donation)

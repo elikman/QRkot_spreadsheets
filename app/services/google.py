@@ -35,7 +35,7 @@ TABLE_VALUES_TEMPLATE = [
 ]
 
 
-async def spreadsheets_create(wrapper_services: Aiogoogle) -> str:
+async def create_spreadsheet(wrapper_services: Aiogoogle) -> str:
     """Функция создания таблицы."""
     service = await wrapper_services.discover('sheets', 'v4')
     spreadsheet_body = deepcopy(SPREADSHEET_TEMPLATE)
@@ -49,7 +49,7 @@ async def spreadsheets_create(wrapper_services: Aiogoogle) -> str:
     return response['spreadsheetId'], response['spreadsheetUrl']
 
 
-async def set_user_permissions(
+async def grant_user_permissions(
     spreadsheet_id: str, wrapper_services: Aiogoogle
 ):
     """
@@ -69,7 +69,7 @@ async def set_user_permissions(
     )
 
 
-async def spreadsheets_update_value(
+async def update_spreadsheet_values(
     spreadsheet_id: str,
     projects: list[CharityProject],
     wrapper_services: Aiogoogle,

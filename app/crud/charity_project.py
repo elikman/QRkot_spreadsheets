@@ -33,5 +33,16 @@ class CRUDCharityProject(CRUDBase):
 
         return projects.scalars().all()
 
+    async def get_not_full_invested(self, session: AsyncSession):
+        """
+        Возвращает все проекты, которые не полностью инвестированы.
+        """
+        not_full_invested_projects = await session.execute(
+            select(CharityProject)
+            .where(CharityProject.fully_invested == 0)
+            .order_by(CharityProject.create_date)
+        )
+        return not_full_invested_projects.scalars().all()
+
 
 charity_project_crud = CRUDCharityProject(CharityProject)

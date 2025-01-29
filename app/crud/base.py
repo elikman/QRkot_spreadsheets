@@ -1,9 +1,7 @@
 from typing import Optional
-
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models import User
 
 
@@ -63,11 +61,3 @@ class CRUDBase:
             select(self.model).where(self.model.id == project_id)
         )
         return project.scalars().first()
-
-    async def get_not_full_invested(self, session: AsyncSession):
-        not_full_invested_projects = await session.execute(
-            select(self.model)
-            .where(self.model.fully_invested == 0)
-            .order_by(self.model.create_date)
-        )
-        return not_full_invested_projects.scalars().all()

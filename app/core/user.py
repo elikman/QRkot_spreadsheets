@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Union
+from typing import AsyncGenerator, Optional, Union
 
 from fastapi import Depends, Request
 from fastapi_users import (
@@ -22,18 +22,18 @@ from app.models.user import User
 from app.schemas.user import UserCreate
 
 
-async def get_user_db(session: AsyncSession = Depends(get_async_session)):
-    yield SQLAlchemyUserDatabase(session, User)
+async def get_user_db(session: AsyncSession = Depends(get_async_session)) -> AsyncGenerator[SQLAlchemyUserDatabase[User, int], None]:
+    yield SQLAlchemyUserDatabase[User, int](session, User)
 
 
-bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
+bearer_transport: BearerTransport = BearerTransport(tokenUrl="auth/jwt/login")
 
 
 def get_jwt_strategy() -> JWTStrategy:
     return JWTStrategy(secret=settings.secret, lifetime_seconds=3600)
 
 
-auth_backend = AuthenticationBackend(
+auth_backend: AuthenticationBackend = AuthenticationBackend(
     name="jwt",
     transport=bearer_transport,
     get_strategy=get_jwt_strategy,
@@ -41,7 +41,6 @@ auth_backend = AuthenticationBackend(
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
-
     async def validate_password(
         self,
         password: str,
@@ -53,18 +52,20 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
             )
         if user.email in password:
             raise InvalidPasswordException(
-                reason="Password should not contain e-mail")
+                reason="Password should not contain e-mail"
+            )
 
     async def on_after_register(
-            self, user: User, request: Optional[Request] = None):
+        self, user: User, request: Optional[Request] = None
+    ) -> None:
         logging.info(f"Пользователь {user.email} зарегистрирован.")
 
 
-async def get_user_manager(user_db=Depends(get_user_db)):
+async def get_user_manager(user_db: SQLAlchemyUserDatabase[User, int] = Depends(get_user_db)) -> AsyncGenerator[UserManager, None]:
     yield UserManager(user_db)
 
 
-fastapi_users = FastAPIUsers[User, int](
+fastapi_users: FastAPIUsers[User, int] = FastAPIUsers(
     get_user_manager,
     [auth_backend],
 )

@@ -3,9 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
-from app.schemas.charity_project import (
-    CharityProjectCreate, CharityProjectUpdate
-)
+from app.schemas.charity_project import CharityProjectCreate, CharityProjectUpdate
 from app.services.investing import distribute_investments
 from app.api.validators import (
     check_name_dublicate,
@@ -27,12 +25,15 @@ async def create_charity_project_service(
     """Создаёт новый благотворительный проект и распределяет инвестиции."""
 
     await check_name_dublicate(obj_in.name, session)
+
     new_charity_project = await charity_project_crud.create(
         obj_in, session, commit=False
     )
+
     fill_models = await donation_crud.get_not_full_invested(session)
     sources = distribute_investments(new_charity_project, fill_models)
     session.add_all(sources)
+
     await session.commit()
     await session.refresh(new_charity_project)
 
@@ -65,9 +66,11 @@ async def update_charity_project_service(
 
 
 async def delete_charity_project_service(
-        project_id: int, session: AsyncSession):
+    project_id: int, session: AsyncSession
+):
     """Удаляет благотворительный проект (если не было инвестиций)."""
 
     charity_project = await check_charity_project_exists(project_id, session)
     check_alredy_invested(charity_project.invested_amount)
+
     return await charity_project_crud.remove(charity_project, session)

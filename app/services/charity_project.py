@@ -3,7 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
-from app.schemas.charity_project import CharityProjectCreate, CharityProjectUpdate
+from app.schemas.charity_project import (
+    CharityProjectCreate,
+    CharityProjectUpdate,
+)
 from app.services.investing import distribute_investments
 from app.api.validators import (
     check_name_dublicate,

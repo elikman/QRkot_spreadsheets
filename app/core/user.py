@@ -22,7 +22,9 @@ from app.models.user import User
 from app.schemas.user import UserCreate
 
 
-async def get_user_db(session: AsyncSession = Depends(get_async_session)) -> AsyncGenerator[SQLAlchemyUserDatabase[User, int], None]:
+async def get_user_db(
+    session: AsyncSession = Depends(get_async_session)
+) -> AsyncGenerator[SQLAlchemyUserDatabase[User, int], None]:
     yield SQLAlchemyUserDatabase[User, int](session, User)
 
 
@@ -61,7 +63,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         logging.info(f"Пользователь {user.email} зарегистрирован.")
 
 
-async def get_user_manager(user_db: SQLAlchemyUserDatabase[User, int] = Depends(get_user_db)) -> AsyncGenerator[UserManager, None]:
+async def get_user_manager(
+    user_db: SQLAlchemyUserDatabase[User, int] = Depends(get_user_db)
+) -> AsyncGenerator[UserManager, None]:
     yield UserManager(user_db)
 
 

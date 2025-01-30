@@ -5,8 +5,8 @@ from typing import List
 from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
 from app.schemas.charity_project import (
-    CharityProjectCreate, 
-    CharityProjectUpdate, 
+    CharityProjectCreate,
+    CharityProjectUpdate,
 )
 from app.models.charity_project import CharityProject
 from app.services.investing import distribute_investments
@@ -17,6 +17,7 @@ from app.api.validators import (
     check_invested_sum,
     check_alredy_invested,
 )
+
 
 async def get_all_charity_projects_service(
         session: AsyncSession

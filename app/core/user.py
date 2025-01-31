@@ -2,10 +2,17 @@ import logging
 from typing import AsyncGenerator, Optional, Union
 
 from fastapi import Depends, Request
-from fastapi_users import (BaseUserManager, FastAPIUsers, IntegerIDMixin,
-                           InvalidPasswordException)
-from fastapi_users.authentication import (AuthenticationBackend,
-                                          BearerTransport, JWTStrategy)
+from fastapi_users import (
+    BaseUserManager,
+    FastAPIUsers,
+    IntegerIDMixin,
+    InvalidPasswordException,
+)
+from fastapi_users.authentication import (
+    AuthenticationBackend,
+    BearerTransport,
+    JWTStrategy,
+)
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,7 +23,7 @@ from app.schemas.user import UserCreate
 
 
 async def get_user_db(
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
 ) -> AsyncGenerator[SQLAlchemyUserDatabase[User, int], None]:
     yield SQLAlchemyUserDatabase[User, int](session, User)
 
@@ -46,9 +53,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
                 reason="Password should be at least 3 characters"
             )
         if user.email in password:
-            raise InvalidPasswordException(
-                reason="Password should not contain e-mail"
-            )
+            raise InvalidPasswordException(reason="Password should not contain e-mail")
 
     async def on_after_register(
         self, user: User, request: Optional[Request] = None
@@ -57,7 +62,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
 
 
 async def get_user_manager(
-    user_db: SQLAlchemyUserDatabase[User, int] = Depends(get_user_db)
+    user_db: SQLAlchemyUserDatabase[User, int] = Depends(get_user_db),
 ) -> AsyncGenerator[UserManager, None]:
     yield UserManager(user_db)
 

@@ -3,20 +3,22 @@ from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.validators import (check_alredy_invested,
-                                check_charity_project_exists,
-                                check_invested_sum, check_name_dublicate,
-                                check_project_closed)
+from app.api.validators import (
+    check_alredy_invested,
+    check_charity_project_exists,
+    check_invested_sum,
+    check_name_dublicate,
+    check_project_closed,
+)
 from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
 from app.models.charity_project import CharityProject
-from app.schemas.charity_project import (CharityProjectCreate,
-                                         CharityProjectUpdate)
+from app.schemas.charity_project import CharityProjectCreate, CharityProjectUpdate
 from app.services.investing import distribute_investments
 
 
 async def get_all_charity_projects_service(
-        session: AsyncSession
+    session: AsyncSession,
 ) -> List[CharityProject]:
     """Получает список всех благотворительных проектов."""
     return await charity_project_crud.get_multi(session)
@@ -29,7 +31,8 @@ async def create_charity_project_service(
     await check_name_dublicate(obj_in.name, session)
 
     new_charity_project = await charity_project_crud.create(
-        obj_in, session, commit=False)
+        obj_in, session, commit=False
+    )
     await distribute_funds(new_charity_project, session)
 
     await session.commit()
@@ -38,9 +41,7 @@ async def create_charity_project_service(
     return new_charity_project
 
 
-async def distribute_funds(
-        project: CharityProject, session: AsyncSession
-) -> None:
+async def distribute_funds(project: CharityProject, session: AsyncSession) -> None:
     """Распределяет инвестиции для благотворительного проекта."""
     fill_models = await donation_crud.get_not_full_invested(session)
     sources = distribute_investments(project, fill_models)

@@ -12,8 +12,7 @@ class CRUDCharityProject(CRUDBase):
         self, charity_project_name: str, session: AsyncSession
     ) -> Optional[int]:
         db_charity_project_id = await session.execute(
-            select(CharityProject.id).where(
-                CharityProject.name == charity_project_name)
+            select(CharityProject.id).where(CharityProject.name == charity_project_name)
         )
         return db_charity_project_id.scalars().first()
 
@@ -21,8 +20,7 @@ class CRUDCharityProject(CRUDBase):
         self,
         session: AsyncSession,
     ) -> list[CharityProject]:
-        completion_rate = extract(
-            "epoch", CharityProject.close_date) - extract(
+        completion_rate = extract("epoch", CharityProject.close_date) - extract(
             "epoch", CharityProject.create_date
         )
         projects = await session.execute(

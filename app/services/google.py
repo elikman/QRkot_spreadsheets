@@ -49,8 +49,7 @@ async def create_spreadsheet(wrapper_services: Aiogoogle) -> str:
     return response["spreadsheetId"], response["spreadsheetUrl"]
 
 
-async def grant_user_permissions(
-        spreadsheet_id: str, wrapper_services: Aiogoogle):
+async def grant_user_permissions(spreadsheet_id: str, wrapper_services: Aiogoogle):
     """
     Функция для предоставления прав доступа
     вашему личному аккаунту к созданному документу.

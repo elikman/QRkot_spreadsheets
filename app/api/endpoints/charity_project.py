@@ -3,13 +3,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
 from app.core.user import current_superuser
-from app.schemas.charity_project import (CharityProjectCreate,
-                                         CharityProjectDB,
-                                         CharityProjectUpdate)
-from app.services.charity_project import (create_charity_project_service,
-                                          delete_charity_project_service,
-                                          get_all_charity_projects_service,
-                                          update_charity_project_service)
+from app.schemas.charity_project import (
+    CharityProjectCreate,
+    CharityProjectDB,
+    CharityProjectUpdate,
+)
+from app.services.charity_project import (
+    create_charity_project_service,
+    delete_charity_project_service,
+    get_all_charity_projects_service,
+    update_charity_project_service,
+)
 
 router = APIRouter()
 

@@ -18,7 +18,8 @@ router = APIRouter()
     dependencies=(Depends(current_superuser),),
     summary="Возвращает список всех пожертвований для суперюзеров",
 )
-async def get_all_donations(session: AsyncSession = Depends(get_async_session)):
+async def get_all_donations(
+    session: AsyncSession = Depends(get_async_session)):
     """Только для суперюзеров. Возвращает список всех пожертвований."""
     return await donation_crud.get_multi(session)
 

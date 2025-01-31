@@ -37,9 +37,12 @@ async def get_report(
     по времени затраченному на сбор средств.
     Только для суперюзеров.
     """
-    projects = await charity_project_crud.get_projects_by_completion_rate(session)
-    spreadsheet_id, spreadsheet_url = await create_spreadsheet(wrapper_services)
-    await grant_user_permissions(spreadsheet_id, wrapper_services)
+    projects = await charity_project_crud.get_projects_by_completion_rate(
+        session)
+    spreadsheet_id, spreadsheet_url = await create_spreadsheet(
+        wrapper_services)
+    await grant_user_permissions(
+        spreadsheet_id, wrapper_services)
     try:
         await update_spreadsheet_values(
             spreadsheet_id,

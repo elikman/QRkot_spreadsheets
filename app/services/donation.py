@@ -13,7 +13,8 @@ class DonationService:
         obj_in: DonationCreate, session: AsyncSession, user: User
     ):
         """Создание пожертвования с распределением средств."""
-        new_donation = await donation_crud.create(obj_in, session, user, commit=False)
+        new_donation = await donation_crud.create(
+            obj_in, session, user, commit=False)
         fill_models = await charity_project_crud.get_not_full_invested(session)
         sources = distribute_investments(new_donation, fill_models)
         session.add_all(sources)

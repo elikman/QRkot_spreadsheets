@@ -53,7 +53,8 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
                 reason="Password should be at least 3 characters"
             )
         if user.email in password:
-            raise InvalidPasswordException(reason="Password should not contain e-mail")
+            raise InvalidPasswordException(
+                reason="Password should not contain e-mail")
 
     async def on_after_register(
         self, user: User, request: Optional[Request] = None

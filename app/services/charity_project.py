@@ -13,7 +13,8 @@ from app.api.validators import (
 from app.crud.charity_project import charity_project_crud
 from app.crud.donation import donation_crud
 from app.models.charity_project import CharityProject
-from app.schemas.charity_project import CharityProjectCreate, CharityProjectUpdate
+from app.schemas.charity_project import (
+    CharityProjectCreate, CharityProjectUpdate)
 from app.services.investing import distribute_investments
 
 
@@ -41,7 +42,10 @@ async def create_charity_project_service(
     return new_charity_project
 
 
-async def distribute_funds(project: CharityProject, session: AsyncSession) -> None:
+async def distribute_funds(
+        project: CharityProject,
+        session: AsyncSession
+) -> None:
     """Распределяет инвестиции для благотворительного проекта."""
     fill_models = await donation_crud.get_not_full_invested(session)
     sources = distribute_investments(project, fill_models)

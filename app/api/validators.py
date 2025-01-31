@@ -53,7 +53,8 @@ def check_invested_sum(invested_amount: int, new_full_amount: int):
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail=(
-                "Нельзя установить значение full_amount " "меньше уже вложенной суммы."
+                "Нельзя установить значение full_amount "
+                "меньше уже вложенной суммы."
             ),
         )
 

@@ -1,8 +1,9 @@
-from aiogoogle import Aiogoogle
-from aiogoogle.auth.creds import ServiceAccountCreds
-from app.core.config import settings
 from typing import AsyncGenerator
 
+from aiogoogle import Aiogoogle
+from aiogoogle.auth.creds import ServiceAccountCreds
+
+from app.core.config import settings
 
 SCOPES: list[str] = [
     "https://www.googleapis.com/auth/spreadsheets",

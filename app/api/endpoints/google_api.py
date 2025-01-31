@@ -9,11 +9,8 @@ from app.core.google_client import get_service
 from app.core.user import current_superuser
 from app.crud.charity_project import charity_project_crud
 from app.schemas.charity_project import CharityProjectDB
-from app.services.google import (
-    grant_user_permissions,
-    create_spreadsheet,
-    update_spreadsheet_values,
-)
+from app.services.google import (create_spreadsheet, grant_user_permissions,
+                                 update_spreadsheet_values)
 
 router = APIRouter()
 
